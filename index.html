@@ -97,29 +97,22 @@
       </div>
     </section>
 
-    <!-- Affiliate Section (Clearly Separated) -->
-    <section class="dashboard-card contact-section" id="contact-section">
-      <div class="contact-header">
-        <h2>제휴 및 데이터 문의</h2>
-        <p>ETF Insight와 함께 시너지를 낼 수 있는 비즈니스 파트너를 모십니다.</p>
+    <!-- Simplified Affiliate Section -->
+    <section class="simple-contact" id="contact-section">
+      <div class="contact-inner">
+        <div class="contact-text">
+          <h2>제휴 및 데이터 문의</h2>
+          <p>비즈니스 협업 및 데이터 제보를 기다립니다.</p>
+        </div>
+        <form action="https://formspree.io/f/mnjbwjwv" method="POST" class="contact-form-simple">
+          <div class="input-group">
+            <input type="text" name="name" placeholder="성함/기업명" required>
+            <input type="email" name="_replyto" placeholder="이메일 주소" required>
+          </div>
+          <textarea name="message" rows="3" placeholder="문의 내용을 입력하세요" required></textarea>
+          <button type="submit" class="simple-submit">문의 전송</button>
+        </form>
       </div>
-      <form action="https://formspree.io/f/mnjbwjwv" method="POST" class="contact-form">
-        <div class="form-group-row">
-          <div class="form-group">
-            <label for="name">성함 또는 기업명</label>
-            <input type="text" name="name" id="name" placeholder="이름을 입력하세요" required>
-          </div>
-          <div class="form-group">
-            <label for="email">답변받을 이메일</label>
-            <input type="email" name="_replyto" id="email" placeholder="email@example.com" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="message">문의 내용</label>
-          <textarea name="message" id="message" rows="4" placeholder="상세 문의 내용을 작성해주세요" required></textarea>
-        </div>
-        <button type="submit" class="submit-btn">문의 내용 전송하기</button>
-      </form>
     </section>
   </main>
 

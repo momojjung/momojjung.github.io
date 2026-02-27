@@ -3,12 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- SEO Meta Tags for AdSense Approval -->
   <title>ETF Insight | 국내 및 미국 ETF 실시간 성과 분석 및 투자 가이드</title>
   <meta name="description" content="KODEX, TIGER 국내 ETF부터 SPY, SCHD 등 미국 ETF까지 전문적인 성과 분석 데이터와 초보자를 위한 투자 가이드를 제공합니다.">
-  <meta name="keywords" content="ETF투자, 국내ETF순위, 미국ETF추천, 배당주ETF, 채권ETF, 재테크정보, 금융데이터">
-  <link rel="canonical" href="https://etf-insight.web.app">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -41,22 +37,31 @@
   </header>
 
   <main class="container" id="dashboard">
-    <!-- Quick Summary Cards -->
+    <!-- Redesigned Summary Grid -->
     <div class="summary-grid" id="summary-grid">
-      <div class="summary-card top-gainer">
-        <span class="label">최고 수익률 (1년)</span>
-        <div class="value" id="top-gainer-val">-</div>
-        <div class="name" id="top-gainer-name">종목명</div>
+      <div class="summary-card card-gainer">
+        <div class="card-icon">🏆</div>
+        <div class="card-body">
+          <span class="label">최고 수익률 (1년)</span>
+          <div class="value" id="top-gainer-val">-</div>
+          <div class="name" id="top-gainer-name">종목명</div>
+        </div>
       </div>
-      <div class="summary-card avg-growth">
-        <span class="label">카테고리 평균 수익률</span>
-        <div class="value" id="avg-growth-val">-</div>
-        <div class="name">현재 카테고리 기준</div>
+      <div class="summary-card card-average">
+        <div class="card-icon">📈</div>
+        <div class="card-body">
+          <span class="label">카테고리 평균 수익률</span>
+          <div class="value" id="avg-growth-val">-</div>
+          <div class="name">현재 필터 기준</div>
+        </div>
       </div>
-      <div class="summary-card high-dividend">
-        <span class="label">주당 배당금 (Top)</span>
-        <div class="value" id="top-div-val">-</div>
-        <div class="name" id="top-div-name">종목명</div>
+      <div class="summary-card card-dividend">
+        <div class="card-icon">💎</div>
+        <div class="card-body">
+          <span class="label">최고 주당 배당금</span>
+          <div class="value" id="top-div-val">-</div>
+          <div class="name" id="top-div-name">종목명</div>
+        </div>
       </div>
     </div>
 
@@ -90,20 +95,24 @@
       </div>
     </section>
 
-    <!-- NEW Content Section for AdSense Approval -->
     <section class="content-article" id="knowledge-base">
       <article>
-        <h2>ETF 투자 가이드: 초보자를 위한 핵심 전략</h2>
-        <p>상장지수펀드(ETF)는 특정 지수의 성과를 추종하도록 설계된 인덱스 펀드로, 주식 시장에서 실시간으로 거래되는 혁신적인 투자 도구입니다. ETF 투자를 시작하기 전 반드시 알아야 할 3가지 요소를 정리해 드립니다.</p>
-        
-        <h3>1. 자산 배분의 중요성</h3>
-        <p>ETF의 가장 큰 장점은 분산 투자입니다. 주식형 ETF뿐만 아니라 채권형, 원자재형, 리츠 등 다양한 자산군으로 포트폴리오를 구성하면 시장의 변동성에 효과적으로 대응할 수 있습니다. 본 대시보드의 '자산별 분석' 탭을 활용해 자산군별 비중을 검토해 보세요.</p>
-        
-        <h3>2. 운용 보수와 실질 수익률</h3>
-        <p>장기 투자자일수록 운용 보수(Expense Ratio)를 꼼꼼히 확인해야 합니다. 연 0.1%의 차이가 10년 뒤에는 큰 자산 가치의 차이를 만듭니다. 당사는 각 운용사의 투자설명서를 기반으로 최신 보수 정보를 투명하게 공개하고 있습니다.</p>
-        
-        <h3>3. 배당(분배금) 재투자 전략</h3>
-        <p>배당 성장형 ETF나 고배당 ETF는 현금 흐름 창출에 유리합니다. 매달 초 업데이트되는 주당 배당금 정보를 확인하고, 지급받은 배당금을 다시 ETF에 재투자함으로써 복리 효과를 극대화하는 것이 성공 투자의 핵심입니다.</p>
+        <h2>ETF 투자 가이드: 성공적인 포트폴리오를 위한 핵심 전략</h2>
+        <p>상장지수펀드(ETF)는 현대 투자자들에게 가장 효율적인 자산 배분 수단입니다. 본 대시보드를 효과적으로 활용하기 위한 팁을 확인하세요.</p>
+        <div class="guide-grid">
+          <div class="guide-item">
+            <h3>🔍 검색 및 필터링</h3>
+            <p>수백 개의 종목 중 원하는 테마나 자산군을 상단 탭과 필터를 통해 즉시 선별할 수 있습니다.</p>
+          </div>
+          <div class="guide-item">
+            <h3>⭐ 관심 종목 관리</h3>
+            <p>별표 아이콘을 클릭해 관심 종목으로 등록하면 어떤 화면에서도 최상단에 고정되어 실시간 추적이 가능합니다.</p>
+          </div>
+          <div class="guide-item">
+            <h3>🛡️ 위험 대비 수익 분석</h3>
+            <p>공시된 위험등급과 운용보수를 수익률과 함께 비교하여 '가성비' 높은 투자를 결정하세요.</p>
+          </div>
+        </div>
       </article>
     </section>
 
@@ -139,9 +148,8 @@
           <h3>ETF Insight</h3>
           <p>금융 데이터의 대중화를 꿈꾸는 독립 플랫폼입니다.</p>
           <ul class="legal-links">
-            <li><a href="#" onclick="alert('준비 중입니다.')">개인정보처리방침</a></li>
-            <li><a href="#" onclick="alert('준비 중입니다.')">이용약관</a></li>
-            <li><a href="#" onclick="alert('준비 중입니다.')">쿠키 정책</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+            <li><a href="#">이용약관</a></li>
           </ul>
         </div>
         <div class="data-sources">
@@ -149,13 +157,8 @@
           <ul>
             <li><strong>시세:</strong> KRX, Investing.com, Alpha Vantage</li>
             <li><strong>공시:</strong> 각 자산운용사 투자설명서</li>
-            <li><strong>배당:</strong> SearchETF, WatchETF</li>
           </ul>
         </div>
-      </div>
-      <div class="disclaimer">
-        <p>* 모든 정보는 매월 초 및 실시간 데이터를 기반으로 업데이트됩니다.</p>
-        <p>* 표시된 위험등급 및 보수는 운용사 공식 공시 자료를 바탕으로 합니다.</p>
       </div>
       <p class="copyright">&copy; 2026 ETF Insight. All rights reserved.</p>
     </div>

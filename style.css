@@ -131,6 +131,11 @@ td { padding: 1.2rem 1rem; border-bottom: 1px solid oklch(25% 0.02 240 / 0.5); }
 .risk-6 { background: oklch(75% 0.1 200); color: white; }
 
 .fee-text { font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8; }
+
+.dividend-row { display: flex; align-items: baseline; gap: 4px; }
+.div-amount { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+.div-cycle { font-size: 0.75rem; color: var(--text-secondary); }
+
 .tag-market { font-size: 0.7rem; border: 1px solid var(--border-color); padding: 1px 4px; border-radius: 3px; margin-right: 4px; color: var(--accent-primary); }
 
 .val-positive { color: var(--positive); font-weight: 700; }

@@ -14,12 +14,39 @@
   
   <header>
     <div class="container">
-      <h1>ETF Insight</h1>
-      <p>실시간 국내 및 해외 ETF 성과 분석</p>
+      <div class="header-content">
+        <div>
+          <h1>ETF Insight</h1>
+          <p>데이터 기반의 스마트한 투자 분석</p>
+        </div>
+        <div class="search-wrapper">
+          <input type="text" id="etf-search" placeholder="종목명 또는 코드 검색..." autocomplete="off">
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
     </div>
   </header>
 
   <main class="container">
+    <!-- Quick Summary Cards -->
+    <div class="summary-grid" id="summary-grid">
+      <div class="summary-card top-gainer">
+        <span class="label">최고 수익률 (1년)</span>
+        <div class="value" id="top-gainer-val">-</div>
+        <div class="name" id="top-gainer-name">종목명</div>
+      </div>
+      <div class="summary-card avg-growth">
+        <span class="label">카테고리 평균 수익률</span>
+        <div class="value" id="avg-growth-val">-</div>
+        <div class="name">현재 카테고리 기준</div>
+      </div>
+      <div class="summary-card high-dividend">
+        <span class="label">최고 배당수익률</span>
+        <div class="value" id="top-div-val">-</div>
+        <div class="name" id="top-div-name">종목명</div>
+      </div>
+    </div>
+
     <nav class="category-nav">
       <button class="nav-btn active" data-market="domestic">국내 ETF</button>
       <button class="nav-btn" data-market="us">미국 ETF</button>
@@ -37,13 +64,14 @@
         <table id="etf-table">
           <thead>
             <tr>
+              <th class="col-fav"></th>
               <th data-sort="name">종목명</th>
-              <th data-sort="category">카테고리</th>
-              <th data-sort="growth" class="sortable">성장률 (%)</th>
-              <th data-sort="1m" class="sortable">1개월 (%)</th>
-              <th data-sort="3m" class="sortable">3개월 (%)</th>
-              <th data-sort="6m" class="sortable">6개월 (%)</th>
-              <th data-sort="1y" class="sortable">1년 (%)</th>
+              <th data-sort="category">구분</th>
+              <th data-sort="growth" class="sortable">성장률 (YTD)</th>
+              <th data-sort="1m" class="sortable">1개월</th>
+              <th data-sort="3m" class="sortable">3개월</th>
+              <th data-sort="6m" class="sortable">6개월</th>
+              <th data-sort="1y" class="sortable">1년</th>
             </tr>
           </thead>
           <tbody id="etf-list">
@@ -60,7 +88,7 @@
         <h3>데이터 출처 (Data Sources)</h3>
         <ul>
           <li><strong>국내 ETF:</strong> KRX, 금융투자협회, FunETF</li>
-          <li><strong>해외 ETF:</strong> ETFDB, Investing.com, Alpha Vantage API</li>
+          <li><strong>미국 ETF:</strong> ETFDB, Investing.com, Alpha Vantage API</li>
           <li><strong>배당 특화:</strong> SearchETF, WatchETF</li>
         </ul>
       </div>

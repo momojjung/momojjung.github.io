@@ -16,19 +16,17 @@ A modern, interactive ETF dashboard that allows users to explore domestic and in
 - **JavaScript:** ES Modules, Async/Await, and modern DOM APIs.
 
 ## Implementation Plan
-1.  **Define ETF Data:** Create a robust dataset of domestic and international ETFs with realistic (dummy) performance data.
-2.  **UI Layout:** 
-    *   Navigation bar for category selection (Domestic vs International).
-    *   Dashboard header with summary stats.
-    *   Sortable data table or grid for ETF listings.
-3.  **Styling:**
-    *   Implement a "premium" theme using OKLCH colors.
-    *   Apply subtle noise textures to the background.
-    *   Use multi-layered shadows for depth.
+... (기존 내용)
 4.  **Interactivity:**
     *   Sorting logic based on user selection.
     *   Filter logic for different categories (Tech, Index, Dividend, etc.).
     *   Animations for data transitions.
+
+## 🚀 UX/UI 고도화 계획 (사용자 중심 개선)
+1.  **상단 요약 섹션**: 현재 탭의 Top 3 종목 및 평균 지표를 카드로 노출.
+2.  **검색 및 즐겨찾기**: 실시간 종목 검색 기능 및 별표(★) 클릭 시 상단 고정 기능.
+3.  **데이터 시각화**: 수익률 수치 옆에 강도를 나타내는 시각적 인디케이터 추가.
+4.  **반응형 레이아웃**: 모바일 사용자용 카드 뷰 전환 시스템 구축.
 
 ## Current Steps
 - [x] Initial Research
@@ -37,3 +35,4 @@ A modern, interactive ETF dashboard that allows users to explore domestic and in
 - [x] Implement CSS styles
 - [x] Implement JS functionality
 - [x] Final validation and testing
+- [ ] UX 고도화 (진행 중)

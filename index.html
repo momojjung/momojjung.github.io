@@ -3,8 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ETF Insight | 국내 및 미국 ETF 실시간 성과 분석 및 투자 가이드</title>
-  <meta name="description" content="KODEX, TIGER 국내 ETF부터 SPY, SCHD 등 미국 ETF까지 전문적인 성과 분석 데이터와 초보자를 위한 투자 가이드를 제공합니다.">
+  <!-- [AdSense SEO] 검색 엔진 최적화 메타 태그 -->
+  <title>ETF Insight | 국내·미국 ETF 실시간 분석 및 전문 투자 가이드</title>
+  <meta name="description" content="KODEX, TIGER 국내 ETF부터 SCHD, JEPI 등 미국 배당 ETF까지 최신 주당 배당금 정보와 공시 위험등급을 기반으로 한 전문 투자 분석 데이터를 제공합니다.">
+  <meta name="author" content="ETF Insight Team">
+  <meta name="keywords" content="ETF투자, 배당금순위, 국내ETF추천, 미국배당주, ETF수익률계산, 금융데이터분석">
+  
+  <!-- [JSON-LD] 구글 검색봇을 위한 구조화 데이터 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FinancialService",
+    "name": "ETF Insight",
+    "description": "실시간 ETF 데이터 분석 및 투자 가이드 제공",
+    "url": "https://momojjung.github.io/ETF-Project",
+    "areaServed": "KR",
+    "serviceType": "Investment Analysis"
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -13,31 +30,39 @@
 <body>
   <div class="background-texture"></div>
   
-  <header>
+  <!-- [AdSense Nav] 명확한 사이트 구조 제공 -->
+  <nav class="top-nav">
+    <div class="container nav-inner">
+      <div class="logo">ETF Insight</div>
+      <ul class="nav-links">
+        <li><a href="#dashboard">분석 대시보드</a></li>
+        <li><a href="#academy">ETF 아카데미</a></li>
+        <li><a href="#about">사이트 소개</a></li>
+        <li><a href="#contact-section">제휴 문의</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="main-header">
     <div class="container">
-      <nav class="top-nav">
-        <div class="logo">ETF Insight</div>
-        <ul class="nav-links">
-          <li><a href="#dashboard">대시보드</a></li>
-          <li><a href="#knowledge-base">투자 가이드</a></li>
-          <li><a href="#contact-section">제휴 문의</a></li>
-        </ul>
-      </nav>
       <div class="header-content">
-        <div>
-          <h1>ETF Insight</h1>
-          <p>데이터 기반의 스마트한 투자 분석 플랫폼</p>
+        <div class="title-group">
+          <h1>스마트한 ETF 투자의 시작</h1>
+          <p>공식 공시 데이터 기반의 투명한 ETF 성과 분석 플랫폼</p>
         </div>
         <div class="search-wrapper">
-          <input type="text" id="etf-search" placeholder="종목명 또는 코드 검색..." autocomplete="off">
+          <input type="text" id="etf-search" placeholder="종목명 또는 티커 검색..." autocomplete="off">
           <span class="search-icon">🔍</span>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="container" id="dashboard">
-    <!-- Redesigned Summary Grid -->
+  <main class="container">
+    <!-- [Placeholder] 상단 광고 영역 (AdSense Slot) -->
+    <div class="ad-placeholder top-ad">광고 승인 후 이곳에 게재됩니다.</div>
+
+    <!-- Summary Section -->
     <div class="summary-grid" id="summary-grid">
       <div class="summary-card card-gainer">
         <div class="card-icon">🏆</div>
@@ -50,9 +75,9 @@
       <div class="summary-card card-average">
         <div class="card-icon">📈</div>
         <div class="card-body">
-          <span class="label">평균 수익률 (필터기준)</span>
+          <span class="label">필터링 평균 수익률</span>
           <div class="value" id="avg-growth-val">-</div>
-          <div class="name">현재 필터 기준</div>
+          <div class="name">현재 카테고리 기준</div>
         </div>
       </div>
       <div class="summary-card card-dividend">
@@ -65,13 +90,13 @@
       </div>
     </div>
 
-    <div class="nav-filter-wrapper">
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="nav-filter-wrapper">
       <nav class="category-nav">
         <button class="nav-btn active" data-market="domestic">국내 ETF</button>
         <button class="nav-btn" data-market="us">미국 ETF</button>
         <button class="nav-btn" data-market="asset">자산별 분석</button>
       </nav>
-
       <div class="filters-bar">
         <div class="category-pills" id="category-pills"></div>
       </div>
@@ -84,7 +109,7 @@
             <tr>
               <th class="col-fav"></th>
               <th data-sort="name">종목명</th>
-              <th data-sort="category">공시 위험등급 / 주당 배당금</th>
+              <th data-sort="category">공시 위험등급 / 배당금</th>
               <th data-sort="growth" class="sortable">성장률 (YTD)</th>
               <th data-sort="1m" class="sortable">1개월</th>
               <th data-sort="3m" class="sortable">3개월</th>
@@ -97,51 +122,77 @@
       </div>
     </section>
 
-    <!-- Simplified Affiliate Section -->
+    <!-- [AdSense Content] 고품질 텍스트 아티클 섹션 -->
+    <section class="content-hub" id="academy">
+      <h2 class="section-title">ETF Academy: 성공 투자를 위한 가이드</h2>
+      <div class="article-grid">
+        <article class="info-article">
+          <div class="article-tag">초보 가이드</div>
+          <h3>ETF 분배금(배당금)의 구조 이해하기</h3>
+          <p>ETF의 분배금은 기초 자산에서 발생하는 배당이나 이자 수익을 투자자에게 환원하는 것입니다. 국내 ETF는 보통 분기 또는 연 단위로 지급하며, 최근에는 JEPI나 SCHD 같은 미국 ETF의 영향으로 '월배당' 상품이 큰 인기를 얻고 있습니다. 본 대시보드에서는 실제 지급되는 '주당 금액'을 기준으로 성과를 분석합니다.</p>
+        </article>
+        <article class="info-article">
+          <div class="article-tag">위험 관리</div>
+          <h3>공시 위험등급과 운용 보수의 상관관계</h3>
+          <p>투자설명서에 공시되는 위험등급은 총 6단계로 나뉩니다. 1등급(매우높은위험) 상품은 레버리지나 테마형 ETF가 많으며, 수익률은 높을 수 있으나 하락장에서의 손실폭 또한 매우 큽니다. 또한 운용 보수는 장기 수익률을 갉아먹는 보이지 않는 비용이므로, 반드시 성과 데이터와 함께 보수 현황을 비교 분석해야 합니다.</p>
+        </article>
+        <article class="info-article">
+          <div class="article-tag">자산 배분</div>
+          <h3>왜 자산별 분석이 필요한가?</h3>
+          <p>단순히 주식형 ETF에만 투자하는 것은 시장 급락기에 포트폴리오를 방어하기 어렵게 만듭니다. 채권형, 원자재형, 대체투자형(리츠) 등으로 자산을 배분하면 전체 포트폴리오의 변동성을 낮출 수 있습니다. '자산별 분석' 기능을 통해 자신의 투자 성향에 맞는 균형 잡힌 포트폴리오를 설계해 보세요.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Affiliate Section -->
     <section class="simple-contact" id="contact-section">
       <div class="contact-inner">
         <div class="contact-text">
-          <h2>제휴 및 데이터 문의</h2>
-          <p>비즈니스 협업 및 데이터 제보를 기다립니다.</p>
+          <h2>비즈니스 파트너십 문의</h2>
+          <p>금융 데이터 협업 및 제휴 제안을 보내주세요.</p>
         </div>
         <form action="https://formspree.io/f/mnjbwjwv" method="POST" class="contact-form-simple">
           <div class="input-group">
             <input type="text" name="name" placeholder="성함/기업명" required>
             <input type="email" name="_replyto" placeholder="이메일 주소" required>
           </div>
-          <textarea name="message" rows="3" placeholder="문의 내용을 입력하세요" required></textarea>
-          <button type="submit" class="simple-submit">문의 전송</button>
+          <textarea name="message" rows="3" placeholder="제휴 또는 데이터 문의 내용을 입력하세요" required></textarea>
+          <button type="submit" class="simple-submit">문의 전송하기</button>
         </form>
       </div>
     </section>
   </main>
 
-  <footer>
+  <!-- [AdSense Bottom] 필수 정책 링크 포함된 푸터 -->
+  <footer id="about">
     <div class="container">
       <div class="footer-grid">
-        <div class="footer-info">
-          <h3>ETF Insight</h3>
-          <p>금융 정보의 투명한 공시와 데이터 분석을 제공하는 독립 플랫폼입니다.</p>
-          <ul class="legal-links">
-            <li><a href="#">개인정보처리방침</a></li>
-            <li><a href="#">이용약관</a></li>
+        <div class="footer-brand">
+          <div class="logo">ETF Insight</div>
+          <p>우리는 모든 투자자가 투명한 데이터에 접근할 수 있는 세상을 꿈꿉니다. 운용사의 공식 공시 자료와 실시간 시장 데이터를 결합하여 최고의 분석 경험을 제공합니다.</p>
+        </div>
+        <div class="footer-nav">
+          <h4>Policy</h4>
+          <ul class="policy-links">
+            <li><a href="#" onclick="alert('개인정보처리방침: 당사는 사용자의 브라우저 로컬 스토리지에 즐겨찾기 정보를 저장하며, 외부로 개인정보를 수집하지 않습니다.')">개인정보처리방침</a></li>
+            <li><a href="#" onclick="alert('이용약관: 본 사이트의 데이터는 참고용이며, 투자 책임은 본인에게 있습니다.')">이용약관</a></li>
+            <li><a href="#about">사이트 소개</a></li>
           </ul>
         </div>
-        <div class="data-sources">
-          <h3>데이터 제공 및 출처</h3>
+        <div class="footer-sources">
+          <h4>Data Sources</h4>
           <ul>
-            <li><strong>시세/수익률:</strong> KRX, Investing.com, Alpha Vantage API (실시간 반영)</li>
-            <li><strong>공시정보:</strong> 금융투자협회 전자공시 및 각 자산운용사 투자설명서 (위험등급/보수)</li>
-            <li><strong>배당데이터:</strong> SearchETF, WatchETF, Dividend.com (2024-2025 실제 공시 수치 기반)</li>
+            <li>거래대금/시세: KRX, Investing.com</li>
+            <li>공시등급/보수: 금융투자협회 공시</li>
+            <li>배당데이터: SearchETF, WatchETF</li>
           </ul>
         </div>
       </div>
-      <div class="final-disclaimer">
-        <p>* 모든 수치는 <strong>가장 최근 공시된 확정 데이터(2024-2025)</strong>를 바탕으로 시뮬레이션되었으며, 매달 초 최신 데이터로 업데이트됩니다.</p>
-        <p>* <strong>위험등급 색상 안내:</strong> 운용사 공식 공시 등급에 따라 빨강(1등급)부터 파랑(6등급)까지 시각화하여 제공합니다.</p>
-        <p>* 본 서비스에서 제공하는 모든 데이터는 투자 참고용이며, 투자 결과에 대한 법적 책임은 투자자 본인에게 있습니다.</p>
+      <div class="final-notice">
+        <p>* 표시된 배당금은 2024-2025 실제 공시된 확정 분배금(1주당) 기준이며, 매달 초 최신 데이터로 업데이트됩니다.</p>
+        <p>* 위험등급은 자산운용사가 공시한 공식 등급으로, 본 서비스의 독립적인 의견이 아님을 다시 한번 안내드립니다.</p>
       </div>
-      <p class="copyright">&copy; 2026 ETF Insight. All rights reserved.</p>
+      <p class="copyright">&copy; 2026 ETF Insight. 모든 권리 보유.</p>
     </div>
   </footer>
 

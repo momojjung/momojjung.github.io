@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ETF Insight - 프리미엄 투자 대시보드</title>
+  <!-- SEO Meta Tags for AdSense Approval -->
+  <title>ETF Insight | 국내 및 미국 ETF 실시간 성과 분석 및 투자 가이드</title>
+  <meta name="description" content="KODEX, TIGER 국내 ETF부터 SPY, SCHD 등 미국 ETF까지 전문적인 성과 분석 데이터와 초보자를 위한 투자 가이드를 제공합니다.">
+  <meta name="keywords" content="ETF투자, 국내ETF순위, 미국ETF추천, 배당주ETF, 채권ETF, 재테크정보, 금융데이터">
+  <link rel="canonical" href="https://etf-insight.web.app">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
@@ -14,10 +19,18 @@
   
   <header>
     <div class="container">
+      <nav class="top-nav">
+        <div class="logo">ETF Insight</div>
+        <ul class="nav-links">
+          <li><a href="#dashboard">대시보드</a></li>
+          <li><a href="#knowledge-base">투자 가이드</a></li>
+          <li><a href="#contact-section">제휴 문의</a></li>
+        </ul>
+      </nav>
       <div class="header-content">
         <div>
           <h1>ETF Insight</h1>
-          <p>데이터 기반의 스마트한 투자 분석</p>
+          <p>데이터 기반의 스마트한 투자 분석 플랫폼</p>
         </div>
         <div class="search-wrapper">
           <input type="text" id="etf-search" placeholder="종목명 또는 코드 검색..." autocomplete="off">
@@ -27,7 +40,8 @@
     </div>
   </header>
 
-  <main class="container">
+  <main class="container" id="dashboard">
+    <!-- Quick Summary Cards -->
     <div class="summary-grid" id="summary-grid">
       <div class="summary-card top-gainer">
         <span class="label">최고 수익률 (1년)</span>
@@ -53,9 +67,7 @@
     </nav>
 
     <div class="filters-bar">
-      <div class="category-pills" id="category-pills">
-        <!-- JS will populate categories here -->
-      </div>
+      <div class="category-pills" id="category-pills"></div>
     </div>
 
     <section class="dashboard-card">
@@ -73,12 +85,29 @@
               <th data-sort="1y" class="sortable">1년</th>
             </tr>
           </thead>
-          <tbody id="etf-list">
-            <!-- JS will populate rows here -->
-          </tbody>
+          <tbody id="etf-list"></tbody>
         </table>
       </div>
-    <section class="dashboard-card contact-section">
+    </section>
+
+    <!-- NEW Content Section for AdSense Approval -->
+    <section class="content-article" id="knowledge-base">
+      <article>
+        <h2>ETF 투자 가이드: 초보자를 위한 핵심 전략</h2>
+        <p>상장지수펀드(ETF)는 특정 지수의 성과를 추종하도록 설계된 인덱스 펀드로, 주식 시장에서 실시간으로 거래되는 혁신적인 투자 도구입니다. ETF 투자를 시작하기 전 반드시 알아야 할 3가지 요소를 정리해 드립니다.</p>
+        
+        <h3>1. 자산 배분의 중요성</h3>
+        <p>ETF의 가장 큰 장점은 분산 투자입니다. 주식형 ETF뿐만 아니라 채권형, 원자재형, 리츠 등 다양한 자산군으로 포트폴리오를 구성하면 시장의 변동성에 효과적으로 대응할 수 있습니다. 본 대시보드의 '자산별 분석' 탭을 활용해 자산군별 비중을 검토해 보세요.</p>
+        
+        <h3>2. 운용 보수와 실질 수익률</h3>
+        <p>장기 투자자일수록 운용 보수(Expense Ratio)를 꼼꼼히 확인해야 합니다. 연 0.1%의 차이가 10년 뒤에는 큰 자산 가치의 차이를 만듭니다. 당사는 각 운용사의 투자설명서를 기반으로 최신 보수 정보를 투명하게 공개하고 있습니다.</p>
+        
+        <h3>3. 배당(분배금) 재투자 전략</h3>
+        <p>배당 성장형 ETF나 고배당 ETF는 현금 흐름 창출에 유리합니다. 매달 초 업데이트되는 주당 배당금 정보를 확인하고, 지급받은 배당금을 다시 ETF에 재투자함으로써 복리 효과를 극대화하는 것이 성공 투자의 핵심입니다.</p>
+      </article>
+    </section>
+
+    <section class="dashboard-card contact-section" id="contact-section">
       <div class="contact-header">
         <h2>제휴 및 데이터 문의</h2>
         <p>ETF Insight와 함께할 파트너를 기다립니다.</p>
@@ -95,14 +124,6 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="subject">문의 유형</label>
-          <select name="subject" id="subject">
-            <option value="제휴 문의">비즈니스 제휴 문의</option>
-            <option value="데이터 수정">데이터 오류 제보</option>
-            <option value="기타 문의">기타 문의</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="message">문의 내용</label>
           <textarea name="message" id="message" rows="4" placeholder="상세 내용을 입력해주세요" required></textarea>
         </div>
@@ -113,18 +134,28 @@
 
   <footer>
     <div class="container">
-      <div class="data-sources">
-        <h3>데이터 및 공시정보 출처</h3>
-        <ul>
-          <li><strong>수익률/시세:</strong> KRX, ETFDB, Investing.com, Alpha Vantage</li>
-          <li><strong>공시 위험등급/보수:</strong> 각 자산운용사 투자설명서 공시 기준</li>
-          <li><strong>배당 정보:</strong> SearchETF, WatchETF (매달 초 최신 데이터 갱신)</li>
-        </ul>
+      <div class="footer-grid">
+        <div class="footer-info">
+          <h3>ETF Insight</h3>
+          <p>금융 데이터의 대중화를 꿈꾸는 독립 플랫폼입니다.</p>
+          <ul class="legal-links">
+            <li><a href="#" onclick="alert('준비 중입니다.')">개인정보처리방침</a></li>
+            <li><a href="#" onclick="alert('준비 중입니다.')">이용약관</a></li>
+            <li><a href="#" onclick="alert('준비 중입니다.')">쿠키 정책</a></li>
+          </ul>
+        </div>
+        <div class="data-sources">
+          <h3>데이터 출처</h3>
+          <ul>
+            <li><strong>시세:</strong> KRX, Investing.com, Alpha Vantage</li>
+            <li><strong>공시:</strong> 각 자산운용사 투자설명서</li>
+            <li><strong>배당:</strong> SearchETF, WatchETF</li>
+          </ul>
+        </div>
       </div>
       <div class="disclaimer">
-        <p>* 배당금은 <strong>1주당 지급 금액</strong> 기준이며, 한국 종목은 원화(₩), 미국 종목은 달러($)로 표시됩니다.</p>
-        <p>* 모든 배당 정보는 매달 초 새롭게 제공되는 데이터를 바탕으로 업데이트됩니다.</p>
-        <p>* 본 화면의 위험등급은 자산운용사의 공식 공시 자료를 인용한 것으로, 서비스의 주관적 의견이 포함되지 않았습니다.</p>
+        <p>* 모든 정보는 매월 초 및 실시간 데이터를 기반으로 업데이트됩니다.</p>
+        <p>* 표시된 위험등급 및 보수는 운용사 공식 공시 자료를 바탕으로 합니다.</p>
       </div>
       <p class="copyright">&copy; 2026 ETF Insight. All rights reserved.</p>
     </div>

@@ -1,14 +1,73 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
+  <title>ETF Insight - 프리미엄 투자 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <div class="background-texture"></div>
+  
+  <header>
+    <div class="container">
+      <h1>ETF Insight</h1>
+      <p>실시간 국내 및 해외 ETF 성과 분석</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="category-nav">
+      <button class="nav-btn active" data-market="domestic">국내 ETF</button>
+      <button class="nav-btn" data-market="us">미국 ETF</button>
+      <button class="nav-btn" data-market="asset">자산별 분석</button>
+    </nav>
+
+    <div class="filters-bar">
+      <div class="category-pills" id="category-pills">
+        <!-- JS will populate categories here -->
+      </div>
+    </div>
+
+    <section class="dashboard-card">
+      <div class="table-wrapper">
+        <table id="etf-table">
+          <thead>
+            <tr>
+              <th data-sort="name">종목명</th>
+              <th data-sort="category">카테고리</th>
+              <th data-sort="growth" class="sortable">성장률 (%)</th>
+              <th data-sort="1m" class="sortable">1개월 (%)</th>
+              <th data-sort="3m" class="sortable">3개월 (%)</th>
+              <th data-sort="6m" class="sortable">6개월 (%)</th>
+              <th data-sort="1y" class="sortable">1년 (%)</th>
+            </tr>
+          </thead>
+          <tbody id="etf-list">
+            <!-- JS will populate rows here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="data-sources">
+        <h3>데이터 출처 (Data Sources)</h3>
+        <ul>
+          <li><strong>국내 ETF:</strong> KRX, 금융투자협회, FunETF</li>
+          <li><strong>해외 ETF:</strong> ETFDB, Investing.com, Alpha Vantage API</li>
+          <li><strong>배당 특화:</strong> SearchETF, WatchETF</li>
+        </ul>
+      </div>
+      <p class="copyright">&copy; 2026 ETF Insight. 제공된 데이터는 참고용입니다.</p>
+    </div>
+  </footer>
+
+  <script defer type="module" src="/main.js"></script>
 </body>
 </html>

@@ -28,7 +28,6 @@
   </header>
 
   <main class="container">
-    <!-- Quick Summary Cards -->
     <div class="summary-grid" id="summary-grid">
       <div class="summary-card top-gainer">
         <span class="label">최고 수익률 (1년)</span>
@@ -66,7 +65,7 @@
             <tr>
               <th class="col-fav"></th>
               <th data-sort="name">종목명</th>
-              <th data-sort="category">구분</th>
+              <th data-sort="category">공시정보 / 구분</th>
               <th data-sort="growth" class="sortable">성장률 (YTD)</th>
               <th data-sort="1m" class="sortable">1개월</th>
               <th data-sort="3m" class="sortable">3개월</th>
@@ -85,14 +84,18 @@
   <footer>
     <div class="container">
       <div class="data-sources">
-        <h3>데이터 출처 (Data Sources)</h3>
+        <h3>데이터 및 공시정보 출처</h3>
         <ul>
-          <li><strong>국내 ETF:</strong> KRX, 금융투자협회, FunETF</li>
-          <li><strong>미국 ETF:</strong> ETFDB, Investing.com, Alpha Vantage API</li>
-          <li><strong>배당 특화:</strong> SearchETF, WatchETF</li>
+          <li><strong>수익률/시세:</strong> KRX, ETFDB, Investing.com, Alpha Vantage</li>
+          <li><strong>공시 위험등급/보수:</strong> 각 자산운용사 투자설명서 및 금융투자협회 공시 기준</li>
+          <li><strong>배당 정보:</strong> SearchETF, WatchETF, Dividend.com</li>
         </ul>
       </div>
-      <p class="copyright">&copy; 2026 ETF Insight. 제공된 데이터는 참고용입니다.</p>
+      <div class="disclaimer">
+        <p>* 본 화면에 표시되는 <strong>'위험등급'</strong>은 자산운용사가 투자설명서를 통해 공식적으로 공시한 등급이며, 본 서비스의 독립적인 의견이나 추천이 아닙니다.</p>
+        <p>* 제공되는 데이터는 참고용이며, 실제 투자 결과에 대한 책임은 투자자 본인에게 있습니다.</p>
+      </div>
+      <p class="copyright">&copy; 2026 ETF Insight. All rights reserved.</p>
     </div>
   </footer>
 

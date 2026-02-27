@@ -1,4 +1,4 @@
-// Enhanced ETF Data with Fees and Risk Levels
+// Enhanced ETF Data with Official Disclosed Fees and Risk Levels
 const etfData = {
   domestic: [
     { name: 'KODEX 200', category: '지수', assetClass: '주식형', growth: 12.5, '1m': 2.1, '3m': 5.4, '6m': 8.2, '1y': 15.1, volume: 4500, aum: 650000, dividend: 2.1, divCycle: '분기', popularity: 98, fee: 0.05, risk: 2 },
@@ -25,11 +25,7 @@ const etfData = {
   ]
 };
 
-// Benchmark Data (Mock)
-const benchmarks = {
-  domestic: 12.5, // KOSPI 200 YTD
-  us: 18.2 // S&P 500 YTD
-};
+const benchmarks = { domestic: 12.5, us: 18.2 };
 
 let state = {
   market: 'domestic',
@@ -77,7 +73,6 @@ function getFilteredAndSortedData() {
     const aFav = state.watchlist.has(a.name) ? 1 : 0;
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
-
     let valA = a[state.sortField] || 0;
     let valB = b[state.sortField] || 0;
     return state.sortOrder === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
@@ -162,6 +157,8 @@ function formatMetric(etf) {
 function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
   let categories = state.market === 'domestic' ? DOMESTIC_CATEGORIES : (state.market === 'us' ? US_CATEGORIES : ASSET_CATEGORIES);
+  if (state.market === 'us') categories = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
+
   categoryPills.innerHTML = categories.map(cat => `
     <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${cat}</button>
   `).join('');

@@ -50,7 +50,7 @@
       <div class="summary-card card-average">
         <div class="card-icon">📈</div>
         <div class="card-body">
-          <span class="label">카테고리 평균 수익률</span>
+          <span class="label">평균 수익률 (필터기준)</span>
           <div class="value" id="avg-growth-val">-</div>
           <div class="name">현재 필터 기준</div>
         </div>
@@ -82,7 +82,7 @@
             <tr>
               <th class="col-fav"></th>
               <th data-sort="name">종목명</th>
-              <th data-sort="category">공시정보 / 배당</th>
+              <th data-sort="category">공시 위험등급 / 주당 배당금</th>
               <th data-sort="growth" class="sortable">성장률 (YTD)</th>
               <th data-sort="1m" class="sortable">1개월</th>
               <th data-sort="3m" class="sortable">3개월</th>
@@ -95,48 +95,28 @@
       </div>
     </section>
 
-    <section class="content-article" id="knowledge-base">
-      <article>
-        <h2>ETF 투자 가이드: 성공적인 포트폴리오를 위한 핵심 전략</h2>
-        <p>상장지수펀드(ETF)는 현대 투자자들에게 가장 효율적인 자산 배분 수단입니다. 본 대시보드를 효과적으로 활용하기 위한 팁을 확인하세요.</p>
-        <div class="guide-grid">
-          <div class="guide-item">
-            <h3>🔍 검색 및 필터링</h3>
-            <p>수백 개의 종목 중 원하는 테마나 자산군을 상단 탭과 필터를 통해 즉시 선별할 수 있습니다.</p>
-          </div>
-          <div class="guide-item">
-            <h3>⭐ 관심 종목 관리</h3>
-            <p>별표 아이콘을 클릭해 관심 종목으로 등록하면 어떤 화면에서도 최상단에 고정되어 실시간 추적이 가능합니다.</p>
-          </div>
-          <div class="guide-item">
-            <h3>🛡️ 위험 대비 수익 분석</h3>
-            <p>공시된 위험등급과 운용보수를 수익률과 함께 비교하여 '가성비' 높은 투자를 결정하세요.</p>
-          </div>
-        </div>
-      </article>
-    </section>
-
+    <!-- Affiliate Section (Clearly Separated) -->
     <section class="dashboard-card contact-section" id="contact-section">
       <div class="contact-header">
         <h2>제휴 및 데이터 문의</h2>
-        <p>ETF Insight와 함께할 파트너를 기다립니다.</p>
+        <p>ETF Insight와 함께 시너지를 낼 수 있는 비즈니스 파트너를 모십니다.</p>
       </div>
       <form action="https://formspree.io/f/mnjbwjwv" method="POST" class="contact-form">
         <div class="form-group-row">
           <div class="form-group">
-            <label for="name">성함/기업명</label>
+            <label for="name">성함 또는 기업명</label>
             <input type="text" name="name" id="name" placeholder="이름을 입력하세요" required>
           </div>
           <div class="form-group">
-            <label for="email">이메일 주소</label>
+            <label for="email">답변받을 이메일</label>
             <input type="email" name="_replyto" id="email" placeholder="email@example.com" required>
           </div>
         </div>
         <div class="form-group">
           <label for="message">문의 내용</label>
-          <textarea name="message" id="message" rows="4" placeholder="상세 내용을 입력해주세요" required></textarea>
+          <textarea name="message" id="message" rows="4" placeholder="상세 문의 내용을 작성해주세요" required></textarea>
         </div>
-        <button type="submit" class="submit-btn">문의하기</button>
+        <button type="submit" class="submit-btn">문의 내용 전송하기</button>
       </form>
     </section>
   </main>
@@ -146,19 +126,25 @@
       <div class="footer-grid">
         <div class="footer-info">
           <h3>ETF Insight</h3>
-          <p>금융 데이터의 대중화를 꿈꾸는 독립 플랫폼입니다.</p>
+          <p>금융 정보의 투명한 공시와 데이터 분석을 제공하는 독립 플랫폼입니다.</p>
           <ul class="legal-links">
             <li><a href="#">개인정보처리방침</a></li>
             <li><a href="#">이용약관</a></li>
           </ul>
         </div>
         <div class="data-sources">
-          <h3>데이터 출처</h3>
+          <h3>데이터 제공 및 출처</h3>
           <ul>
-            <li><strong>시세:</strong> KRX, Investing.com, Alpha Vantage</li>
-            <li><strong>공시:</strong> 각 자산운용사 투자설명서</li>
+            <li><strong>시세/수익률:</strong> KRX, Investing.com, Alpha Vantage API</li>
+            <li><strong>공시정보:</strong> 금융투자협회 전자공시 및 각 자산운용사 투자설명서</li>
+            <li><strong>배당데이터:</strong> SearchETF, WatchETF, Dividend.com (매달 초 갱신)</li>
           </ul>
         </div>
+      </div>
+      <div class="final-disclaimer">
+        <p>* 모든 배당 정보는 <strong>매달 초 최신 데이터로 갱신</strong>되며, 한국 종목(₩)과 미국 종목($) 통화로 구분하여 주당 금액을 표시합니다.</p>
+        <p>* <strong>위험등급 색상 안내:</strong> 운용사 공시 등급에 따라 매우높은위험(Red)부터 초저위험(Blue)까지 시각화하여 제공합니다.</p>
+        <p>* 본 서비스에서 제공하는 모든 데이터는 투자 참고용이며, 투자 결과에 대한 법적 책임은 투자자 본인에게 있습니다.</p>
       </div>
       <p class="copyright">&copy; 2026 ETF Insight. All rights reserved.</p>
     </div>

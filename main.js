@@ -46,6 +46,15 @@ function updateDashboard() {
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
   renderTable(filteredData);
+  updateLastUpdateTime();
+}
+
+function updateLastUpdateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  document.getElementById('last-update-time').textContent = `마지막 업데이트: ${year}-${month}-${day} 15:00`;
 }
 
 function getFilteredAndSortedData() {

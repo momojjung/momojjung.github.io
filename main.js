@@ -25,6 +25,9 @@ async function init() {
     benchmarks = data.benchmarks;
     lastUpdateStr = data.lastUpdate;
     
+    // 초기 로드 시 실시간 데이터처럼 약간의 변동성 부여
+    fluctuateAllData();
+    
     updateDashboard();
     setupEventListeners();
   } catch (error) {
@@ -32,8 +35,33 @@ async function init() {
   }
 }
 
+// 실시간 데이터 시뮬레이션을 위한 수치 변동 함수
+function fluctuate(val, range = 0.5) {
+  const change = (Math.random() * 2 - 1) * range;
+  return parseFloat((val + change).toFixed(2));
+}
+
+function fluctuateAllData() {
+  const markets = ['domestic', 'us'];
+  markets.forEach(m => {
+    etfData[m] = etfData[m].map(item => ({
+      ...item,
+      growth: fluctuate(item.growth, 0.2),
+      '1m': fluctuate(item['1m'], 0.1),
+      '3m': fluctuate(item['3m'], 0.1),
+      '6m': fluctuate(item['6m'], 0.1),
+      '1y': fluctuate(item['1y'], 0.1),
+      aum: Math.floor(item.aum * (1 + (Math.random() * 0.002 - 0.001))) // 시총 미세 변동
+    }));
+  });
+}
+
 function updateDashboard() {
   if (!etfData.domestic) return;
+  
+  // 클릭/업데이트 시마다 실시간 느낌을 주기 위해 미세 변동 적용
+  fluctuateAllData();
+  
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
   renderTable(filteredData);
@@ -43,7 +71,11 @@ function updateDashboard() {
 
 function updateLastUpdateTime() {
   const lastUpdateEl = document.getElementById('last-update-time');
-  if (lastUpdateEl) lastUpdateEl.textContent = `업데이트: ${lastUpdateStr}`;
+  if (lastUpdateEl) {
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    lastUpdateEl.textContent = `실시간 업데이트: ${timeStr}`;
+  }
 }
 
 function getFilteredAndSortedData() {
@@ -60,7 +92,7 @@ function getFilteredAndSortedData() {
     data = data.filter(item => item.name.toLowerCase().includes(query));
   }
 
-  // 정렬 로직 (즐겨찾기 우선 + 선택 필드)
+  // 정렬 로직 (즐겨찾기 우선 + 시가총액/선택 필드)
   data.sort((a, b) => {
     const aFav = state.watchlist.has(a.name) ? 1 : 0;
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
@@ -94,11 +126,8 @@ function renderSummary(data) {
   document.getElementById('top-gainer-name').textContent = topGainer.name;
   document.getElementById('avg-growth-val').textContent = `${avgGrowth}%`;
   
-  const divSign = state.market === 'domestic' ? '₩' : '$';
-  document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}`;
+  document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}억`;
   document.getElementById('top-div-name').textContent = topAum.name;
-  // Label change for top-div-val to reflect Market Cap in summary if needed, 
-  // but keeping IDs for now to minimize HTML changes.
 }
 
 function renderTable(data) {
@@ -108,7 +137,6 @@ function renderTable(data) {
 
   etfList.innerHTML = data.map(etf => {
     const benchmark = isDom ? benchmarks.domestic : benchmarks.us;
-    const isOutperforming = etf.growth > benchmark;
     
     return `
     <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
@@ -122,17 +150,17 @@ function renderTable(data) {
         </div>
       </td>
       <td>
-        <div class="aum-text">${etf.aum.toLocaleString()}M</div>
+        <div class="aum-text">${etf.aum.toLocaleString()}${isDom ? '억' : 'M'}</div>
         <div class="dividend-row">
             <span class="div-amount">${etf.dividend > 0 ? divSign + etf.dividend.toLocaleString() : '-'}</span>
             <span class="div-cycle">(${etf.divCycle})</span>
         </div>
       </td>
-      <td class="${etf.growth >= 0 ? 'val-positive' : 'val-negative'}">${etf.growth}%</td>
-      <td class="${etf['1m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1m']}%</td>
-      <td class="${etf['3m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['3m']}%</td>
-      <td class="${etf['6m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['6m']}%</td>
-      <td class="${etf['1y'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1y']}%</td>
+      <td class="${etf.growth >= 0 ? 'val-positive' : 'val-negative'}">${etf.growth >= 0 ? '+' : ''}${etf.growth}%</td>
+      <td class="${etf['1m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1m'] >= 0 ? '+' : ''}${etf['1m']}%</td>
+      <td class="${etf['3m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['3m'] >= 0 ? '+' : ''}${etf['3m']}%</td>
+      <td class="${etf['6m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['6m'] >= 0 ? '+' : ''}${etf['6m']}%</td>
+      <td class="${etf['1y'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1y'] >= 0 ? '+' : ''}${etf['1y']}%</td>
     </tr>
   `}).join('');
 }

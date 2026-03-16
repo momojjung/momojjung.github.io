@@ -6,7 +6,7 @@ let lastUpdateStr = '';
 let state = {
   market: 'domestic',
   category: '인기검색',
-  subCategory: '', // '1m', '3m', '6m', '1y' for Dividend
+  subCategory: '', // '월', '분기', '반기', '연'
   sortField: 'popularity',
   sortOrder: 'desc',
   searchQuery: '',
@@ -20,10 +20,10 @@ const US_SECTORS = ['고배당', '매월배당', '일반국채', '단기국채',
 const ASSET_CATEGORIES = ['주식형', '채권형', '원자재형', '혼합자산형', '대체투자형'];
 
 const DIVIDEND_SUB_CATEGORIES = [
-    { label: '1개월 배당금 상위', value: '1m' },
-    { label: '3개월 배당금 상위', value: '3m' },
-    { label: '6개월 배당금 상위', value: '6m' },
-    { label: '1년 배당금 상위', value: '1y' }
+    { label: '월 배당 (매달)', value: '월' },
+    { label: '분기 배당 (연 4회)', value: '분기' },
+    { label: '반기 배당 (연 2회)', value: '반기' },
+    { label: '연 배당 (연 1회)', value: '연' }
 ];
 
 async function init() {
@@ -56,30 +56,6 @@ function updateLastUpdateTime() {
   if (lastUpdateEl) lastUpdateEl.textContent = `마지막 업데이트: ${lastUpdateStr}`;
 }
 
-function getPeriodDividend(item, period) {
-    const div = item.dividend || 0;
-    const cycle = item.divCycle;
-    if (!div) return 0;
-
-    if (period === '1m') {
-        return cycle === '월' ? div : 0;
-    } else if (period === '3m') {
-        if (cycle === '월') return div * 3;
-        if (cycle === '분기') return div;
-        return 0;
-    } else if (period === '6m') {
-        if (cycle === '월') return div * 6;
-        if (cycle === '분기') return div * 2;
-        return 0;
-    } else if (period === '1y') {
-        if (cycle === '월') return div * 12;
-        if (cycle === '분기') return div * 4;
-        if (cycle === '연') return div;
-        return 0;
-    }
-    return 0;
-}
-
 function getFilteredAndSortedData() {
   let data = [];
   
@@ -90,17 +66,18 @@ function getFilteredAndSortedData() {
       data = [...etfData.domestic, ...etfData.us].filter(item => item.assetClass === state.category);
   } else {
       data = [...etfData[state.market]];
-      // 개별 시장 탭의 섹터 필터링 (예: 국내-지수, 미국-에너지)
       if (DOMESTIC_SECTORS.includes(state.category) || US_SECTORS.includes(state.category)) {
           data = data.filter(item => item.category === state.category);
       }
   }
 
-  // 2. 배당금 전용 필터링
+  // 2. 배당금 전용 필터링 및 정렬 기준 강화
   if (state.category === '배당금') {
       if (state.subCategory) {
-          data = data.filter(item => getPeriodDividend(item, state.subCategory) > 0);
+          // 특정 주기의 배당금만 노출 (월, 분기, 반기, 연 중 선택한 것만)
+          data = data.filter(item => item.divCycle === state.subCategory && item.dividend > 0);
       } else {
+          // 전체 배당금 탭에서는 배당금이 있는 모든 종목 노출
           data = data.filter(item => item.dividend > 0);
       }
   }
@@ -113,19 +90,17 @@ function getFilteredAndSortedData() {
 
   // 4. 정렬 로직
   data.sort((a, b) => {
-    // 즐겨찾기 우선
     const aFav = state.watchlist.has(a.name) ? 1 : 0;
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
 
     // 배당금 순위는 오직 배당금액으로만 (성장률 무시)
     if (state.category === '배당금') {
-        let valA = state.subCategory ? getPeriodDividend(a, state.subCategory) : a.dividend;
-        let valB = state.subCategory ? getPeriodDividend(b, state.subCategory) : b.dividend;
+        let valA = a.dividend || 0;
+        let valB = b.dividend || 0;
         return state.sortOrder === 'asc' ? valA - valB : valB - valA;
     }
 
-    // 기타 항목 정렬
     let valA = a[state.sortField] || 0;
     let valB = b[state.sortField] || 0;
     return state.sortOrder === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
@@ -159,11 +134,7 @@ function renderTable(data) {
     const benchmark = isDom ? benchmarks.domestic : benchmarks.us;
     const isOutperforming = etf.growth > benchmark;
     
-    let displayDividend = `${divSign}${etf.dividend}`;
-    if (state.category === '배당금' && state.subCategory) {
-        const periodTotal = getPeriodDividend(etf, state.subCategory);
-        displayDividend = `${divSign}${periodTotal.toLocaleString()} <small style="font-size:0.75em; opacity:0.8;">(${state.subCategory} 합계)</small>`;
-    }
+    let displayDividend = `${divSign}${etf.dividend.toLocaleString()}`;
 
     return `
     <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
@@ -258,7 +229,7 @@ function setupEventListeners() {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.market = btn.dataset.market;
-      state.category = '인기검색'; // 탭 전환 시 기본 인기검색(통합순위)으로 초기화
+      state.category = '인기검색';
       state.subCategory = '';
       renderCategories();
       updateDashboard();

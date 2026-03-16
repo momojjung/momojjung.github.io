@@ -188,6 +188,33 @@ body {
   color: var(--primary);
 }
 
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 20px;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.lang-btn.active {
+  color: var(--primary);
+}
+
+.lang-divider {
+  color: var(--border);
+  font-size: 0.8rem;
+}
+
 /* Header */
 .main-header {
   background: #ffffff;

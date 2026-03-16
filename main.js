@@ -9,7 +9,73 @@ let state = {
   sortField: 'aum', // 시가총액(AUM) 기준 정렬
   sortOrder: 'desc',
   searchQuery: '',
+  lang: 'ko',
   watchlist: new Set(JSON.parse(localStorage.getItem('etf-watchlist') || '[]'))
+};
+
+const TRANSLATIONS = {
+  ko: {
+    'nav-dashboard': '분석 대시보드',
+    'nav-academy': 'ETF 아카데미',
+    'nav-about': '사이트 소개',
+    'nav-contact': '제휴 문의',
+    'header-title': '스마트한 ETF 투자의 시작',
+    'header-subtitle': '공식 공시 데이터 기반의 투명한 ETF 성과 분석 플랫폼',
+    'etf-search-placeholder': '종목명 또는 티커 검색...',
+    'news-label': '실시간 주요 뉴스',
+    'label-top-gainer': '최고 수익률 (1년)',
+    'label-avg-growth': '카테고리 평균 수익률',
+    'label-filter-base': '현재 필터 기준',
+    'label-max-aum': '최대 시가총액',
+    'market-domestic': '국내 ETF',
+    'market-us': '미국 ETF',
+    'market-cap-notice': '** 시가총액 상위 기준 **',
+    'th-name': '종목명',
+    'th-aum': '시가총액 / 배당금',
+    'th-growth': '성장률 (YTD)',
+    'th-1m': '1개월',
+    'th-3m': '3개월',
+    'th-6m': '6개월',
+    'th-1y': '1년',
+    'unit-aum-kr': '억',
+    'unit-aum-us': 'M',
+    'categories': {
+      '전체': '전체', '배당': '배당', '코스닥': '코스닥', '방산': '방산', 'S&P500': 'S&P500', 
+      '나스닥100': '나스닥100', '금': '금', '월배당': '월배당', '원유': '원유', '2차전지': '2차전지', '로봇': '로봇'
+    },
+    'news-cats': { '증시': '증시', '경제': '경제', '산업': '산업', '속보': '속보', '분석': '분석' }
+  },
+  en: {
+    'nav-dashboard': 'Dashboard',
+    'nav-academy': 'ETF Academy',
+    'nav-about': 'About Us',
+    'nav-contact': 'Contact',
+    'header-title': 'Smart ETF Investing Starts Here',
+    'header-subtitle': 'Transparent ETF Analysis Platform Based on Official Disclosures',
+    'etf-search-placeholder': 'Search Name or Ticker...',
+    'news-label': 'Trending News',
+    'label-top-gainer': 'Top Gainer (1Y)',
+    'label-avg-growth': 'Category Avg Growth',
+    'label-filter-base': 'Current Filter',
+    'label-max-aum': 'Max Market Cap',
+    'market-domestic': 'Domestic ETF',
+    'market-us': 'US ETF',
+    'market-cap-notice': '** Sorted by Market Cap **',
+    'th-name': 'Name',
+    'th-aum': 'Market Cap / Dividend',
+    'th-growth': 'Growth (YTD)',
+    'th-1m': '1 Month',
+    'th-3m': '3 Months',
+    'th-6m': '6 Months',
+    'th-1y': '1 Year',
+    'unit-aum-kr': 'B KRW',
+    'unit-aum-us': 'M USD',
+    'categories': {
+      '전체': 'All', '배당': 'Dividend', '코스닥': 'KOSDAQ', '방산': 'Defense', 'S&P500': 'S&P500', 
+      '나스닥100': 'NASDAQ 100', '금': 'Gold', '월배당': 'Monthly Div', '원유': 'Crude Oil', '2차전지': 'Battery', '로봇': 'Robot'
+    },
+    'news-cats': { '증시': 'Market', '경제': 'Economy', '산업': 'Industry', '속보': 'Breaking', '분석': 'Analysis' }
+  }
 };
 
 // 네이버 ETF 스타일 카테고리 (11개)
@@ -80,12 +146,13 @@ function initGlobalIndices() {
 
 function initTrendingNews() {
   const newsContainer = document.getElementById('trending-news');
+  const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
 
   const renderNews = () => {
     newsContainer.innerHTML = TRENDING_NEWS.map((news, i) => `
       <div class="news-item ${i === 0 ? 'active' : ''}" style="transform: translateY(${i * 100}%)">
-        <span class="news-category">[${news.cat}]</span>
+        <span class="news-category">[${tCats[news.cat] || news.cat}]</span>
         <a href="#" class="news-title">${news.title}</a>
       </div>
     `).join('');
@@ -93,6 +160,7 @@ function initTrendingNews() {
 
   const rotateNews = () => {
     const items = newsContainer.querySelectorAll('.news-item');
+    if (items.length === 0) return;
     items.forEach((item, i) => {
       item.classList.remove('active');
       let offset = (i - currentIdx);
@@ -104,7 +172,8 @@ function initTrendingNews() {
   };
 
   renderNews();
-  setInterval(rotateNews, 4000);
+  if (window.newsInterval) clearInterval(window.newsInterval);
+  window.newsInterval = setInterval(rotateNews, 4000);
 }
 
 // 실시간 데이터 시뮬레이션을 위한 수치 변동 함수
@@ -135,11 +204,26 @@ function updateDashboard() {
   fluctuateAllData();
   fluctuateGlobalIndices();
   
+  applyTranslations();
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
   renderTable(filteredData);
   renderCategories();
   updateLastUpdateTime();
+}
+
+function applyTranslations() {
+  const t = TRANSLATIONS[state.lang];
+  Object.keys(t).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) {
+      if (key === 'etf-search-placeholder') {
+        document.getElementById('etf-search').placeholder = t[key];
+      } else {
+        el.textContent = t[key];
+      }
+    }
+  });
 }
 
 function fluctuateGlobalIndices() {
@@ -155,7 +239,8 @@ function updateLastUpdateTime() {
   if (lastUpdateEl) {
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    lastUpdateEl.textContent = `실시간 업데이트: ${timeStr}`;
+    const prefix = state.lang === 'ko' ? '실시간 업데이트' : 'Live Update';
+    lastUpdateEl.textContent = `${prefix}: ${timeStr}`;
   }
 }
 
@@ -207,7 +292,7 @@ function renderSummary(data) {
   document.getElementById('top-gainer-name').textContent = topGainer.name;
   document.getElementById('avg-growth-val').textContent = `${avgGrowth}%`;
   
-  const unit = state.market === 'domestic' ? '억' : 'M';
+  const unit = TRANSLATIONS[state.lang][state.market === 'domestic' ? 'unit-aum-kr' : 'unit-aum-us'];
   document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}${unit}`;
   document.getElementById('top-div-name').textContent = topAum.name;
 }
@@ -216,10 +301,9 @@ function renderTable(data) {
   const etfList = document.getElementById('etf-list');
   const isDom = state.market === 'domestic';
   const divSign = isDom ? '₩' : '$';
+  const unit = TRANSLATIONS[state.lang][isDom ? 'unit-aum-kr' : 'unit-aum-us'];
 
   etfList.innerHTML = data.map(etf => {
-    const benchmark = isDom ? benchmarks.domestic : benchmarks.us;
-    
     return `
     <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
       <td class="col-fav ${state.watchlist.has(etf.name) ? 'active' : ''}" onclick="toggleWatchlist('${etf.name}')">
@@ -232,7 +316,7 @@ function renderTable(data) {
         </div>
       </td>
       <td>
-        <div class="aum-text">${etf.aum.toLocaleString()}${isDom ? '억' : 'M'}</div>
+        <div class="aum-text">${etf.aum.toLocaleString()}${unit}</div>
         <div class="dividend-row">
             <span class="div-amount">${etf.dividend > 0 ? divSign + etf.dividend.toLocaleString() : '-'}</span>
             <span class="div-cycle">(${etf.divCycle})</span>
@@ -247,6 +331,15 @@ function renderTable(data) {
   `}).join('');
 }
 
+function renderCategories() {
+  const categoryPills = document.getElementById('category-pills');
+  const tCats = TRANSLATIONS[state.lang].categories;
+  
+  categoryPills.innerHTML = NAVER_CATEGORIES.map(cat => `
+    <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${tCats[cat] || cat}</button>
+  `).join('');
+}
+
 window.toggleWatchlist = (name) => {
   if (state.watchlist.has(name)) state.watchlist.delete(name);
   else state.watchlist.add(name);
@@ -254,15 +347,17 @@ window.toggleWatchlist = (name) => {
   updateDashboard();
 };
 
-function renderCategories() {
-  const categoryPills = document.getElementById('category-pills');
-  
-  categoryPills.innerHTML = NAVER_CATEGORIES.map(cat => `
-    <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${cat}</button>
-  `).join('');
-}
-
 function setupEventListeners() {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.lang = btn.dataset.lang;
+      initTrendingNews(); // Update news tags
+      updateDashboard();
+    });
+  });
+
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));

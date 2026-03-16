@@ -64,11 +64,16 @@
     <div class="container nav-inner">
       <div class="logo">ETF Insight</div>
       <ul class="nav-links">
-        <li><a href="#dashboard">분석 대시보드</a></li>
-        <li><a href="#academy">ETF 아카데미</a></li>
-        <li><a href="#about">사이트 소개</a></li>
-        <li><a href="#contact-section">제휴 문의</a></li>
+        <li><a href="#dashboard" id="nav-dashboard">분석 대시보드</a></li>
+        <li><a href="#academy" id="nav-academy">ETF 아카데미</a></li>
+        <li><a href="#about" id="nav-about">사이트 소개</a></li>
+        <li><a href="#contact-section" id="nav-contact">제휴 문의</a></li>
       </ul>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="ko">KR</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
     </div>
   </nav>
 
@@ -76,8 +81,8 @@
     <div class="container">
       <div class="header-content">
         <div class="title-group">
-          <h1>스마트한 ETF 투자의 시작</h1>
-          <p>공식 공시 데이터 기반의 투명한 ETF 성과 분석 플랫폼</p>
+          <h1 id="header-title">스마트한 ETF 투자의 시작</h1>
+          <p id="header-subtitle">공식 공시 데이터 기반의 투명한 ETF 성과 분석 플랫폼</p>
         </div>
         <div class="search-wrapper">
           <input type="text" id="etf-search" placeholder="종목명 또는 티커 검색..." autocomplete="off">
@@ -90,7 +95,7 @@
   <!-- Trending News Section -->
   <section class="news-ticker-section">
     <div class="container news-inner">
-      <div class="news-label">실시간 주요 뉴스</div>
+      <div class="news-label" id="news-label">실시간 주요 뉴스</div>
       <div class="news-content" id="trending-news">
         <!-- News headlines will be injected here -->
       </div>
@@ -106,7 +111,7 @@
       <div class="summary-card card-gainer">
         <div class="card-icon">🏆</div>
         <div class="card-body">
-          <span class="label">최고 수익률 (1년)</span>
+          <span class="label" id="label-top-gainer">최고 수익률 (1년)</span>
           <div class="value" id="top-gainer-val">-</div>
           <div class="name" id="top-gainer-name">종목명</div>
         </div>
@@ -114,15 +119,15 @@
       <div class="summary-card card-average">
         <div class="card-icon">📈</div>
         <div class="card-body">
-          <span class="label">카테고리 평균 수익률</span>
+          <span class="label" id="label-avg-growth">카테고리 평균 수익률</span>
           <div class="value" id="avg-growth-val">-</div>
-          <div class="name">현재 필터 기준</div>
+          <div class="name" id="label-filter-base">현재 필터 기준</div>
         </div>
       </div>
       <div class="summary-card card-dividend">
         <div class="card-icon">💰</div>
         <div class="card-body">
-          <span class="label">최대 시가총액</span>
+          <span class="label" id="label-max-aum">최대 시가총액</span>
           <div class="value" id="top-div-val">-</div>
           <div class="name" id="top-div-name">종목명</div>
         </div>
@@ -132,10 +137,10 @@
     <!-- Dashboard Section -->
     <div id="dashboard" class="nav-filter-wrapper">
       <nav class="category-nav">
-        <button class="nav-btn active" data-market="domestic">국내 ETF</button>
-        <button class="nav-btn" data-market="us">미국 ETF</button>
+        <button class="nav-btn active" data-market="domestic" id="market-domestic">국내 ETF</button>
+        <button class="nav-btn" data-market="us" id="market-us">미국 ETF</button>
       </nav>
-      <div class="market-cap-notice" style="text-align: left; font-weight: 700; color: #666; margin: -10px 0 15px 5px; font-size: 0.9rem;">
+      <div class="market-cap-notice" id="market-cap-notice" style="text-align: left; font-weight: 700; color: #666; margin: -10px 0 15px 5px; font-size: 0.9rem;">
         ** 시가총액 상위 기준 **
       </div>
       <div class="filters-bar">
@@ -150,13 +155,13 @@
           <thead>
             <tr>
               <th class="col-fav"></th>
-              <th data-sort="name">종목명</th>
-              <th data-sort="aum" class="sortable">시가총액 / 배당금</th>
-              <th data-sort="growth" class="sortable">성장률 (YTD)</th>
-              <th data-sort="1m" class="sortable">1개월</th>
-              <th data-sort="3m" class="sortable">3개월</th>
-              <th data-sort="6m" class="sortable">6개월</th>
-              <th data-sort="1y" class="sortable">1년</th>
+              <th data-sort="name" id="th-name">종목명</th>
+              <th data-sort="aum" class="sortable" id="th-aum">시가총액 / 배당금</th>
+              <th data-sort="growth" class="sortable" id="th-growth">성장률 (YTD)</th>
+              <th data-sort="1m" class="sortable" id="th-1m">1개월</th>
+              <th data-sort="3m" class="sortable" id="th-3m">3개월</th>
+              <th data-sort="6m" class="sortable" id="th-6m">6개월</th>
+              <th data-sort="1y" class="sortable" id="th-1y">1년</th>
             </tr>
           </thead>
           <tbody id="etf-list"></tbody>

@@ -20,18 +20,15 @@ jobs:
       - name: Update data
         run: node update_data.js
 
-      - name: Commit and push changes
+      - name: Commit and push changes to ETF-Project
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add data.json
           git commit -m "chore: daily data update [$(date +'%Y-%m-%d')]" || echo "No changes to commit"
-          git push
+          git push origin main
 
-      - name: Deploy to Firebase
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          channelId: live
-          projectId: '${{ vars.FIREBASE_PROJECT_ID }}'
+      - name: Push to momojjung.github.io (Deploy)
+        run: |
+          git remote add deploy https://x-access-token:${{ secrets.GH_PAT }}@github.com/momojjung/momojjung.github.io.git || git remote set-url deploy https://x-access-token:${{ secrets.GH_PAT }}@github.com/momojjung/momojjung.github.io.git
+          git push deploy main --force

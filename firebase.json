@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase-debug.log",
+      ".idx/**",
+      "**/.*"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

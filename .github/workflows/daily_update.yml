@@ -1,0 +1,37 @@
+name: Daily ETF Data Update
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # Every day at 07:00 UTC (16:00 KST)
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Update data
+        run: node update_data.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data.json
+          git commit -m "chore: daily data update [$(date +'%Y-%m-%d')]" || echo "No changes to commit"
+          git push
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: '${{ vars.FIREBASE_PROJECT_ID }}'

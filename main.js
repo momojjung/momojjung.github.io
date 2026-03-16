@@ -1,4 +1,4 @@
-// [최종 실제 데이터 기반 보정] 국내 및 미국 ETF 정보 (2024-2025 공시 수치 반영)
+// [최종 실제 데이터 기반 보정] 국내 및 미국 ETF 정보
 let etfData = {};
 let benchmarks = {};
 let lastUpdateStr = '';
@@ -13,9 +13,12 @@ let state = {
   watchlist: new Set(JSON.parse(localStorage.getItem('etf-watchlist') || '[]'))
 };
 
-const DOMESTIC_CATEGORIES = ['인기검색', '거래대금', '상승률', '하락률', '운용규모', '배당금'];
-const US_CATEGORIES = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
+// 모든 ETF를 대상으로 하는 순위 항목들 (Global Ranking Criteria)
+const RANK_PILLS = ['인기검색', '거래대금', '상승률', '하락률', '운용규모', '배당금'];
+const DOMESTIC_SECTORS = ['지수', '배당', '채권', '리츠', '테마'];
+const US_SECTORS = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
 const ASSET_CATEGORIES = ['주식형', '채권형', '원자재형', '혼합자산형', '대체투자형'];
+
 const DIVIDEND_SUB_CATEGORIES = [
     { label: '1개월 배당금 상위', value: '1m' },
     { label: '3개월 배당금 상위', value: '3m' },
@@ -49,7 +52,8 @@ function updateDashboard() {
 }
 
 function updateLastUpdateTime() {
-  document.getElementById('last-update-time').textContent = `마지막 업데이트: ${lastUpdateStr}`;
+  const lastUpdateEl = document.getElementById('last-update-time');
+  if (lastUpdateEl) lastUpdateEl.textContent = `마지막 업데이트: ${lastUpdateStr}`;
 }
 
 function getPeriodDividend(item, period) {
@@ -58,20 +62,16 @@ function getPeriodDividend(item, period) {
     if (!div) return 0;
 
     if (period === '1m') {
-        // 1개월은 오직 월배당만
         return cycle === '월' ? div : 0;
     } else if (period === '3m') {
-        // 3개월은 월배당(x3) + 분기배당
         if (cycle === '월') return div * 3;
         if (cycle === '분기') return div;
         return 0;
     } else if (period === '6m') {
-        // 6개월은 월배당(x6) + 분기배당(x2)
         if (cycle === '월') return div * 6;
         if (cycle === '분기') return div * 2;
         return 0;
     } else if (period === '1y') {
-        // 1년은 모든 배당 합산
         if (cycle === '월') return div * 12;
         if (cycle === '분기') return div * 4;
         if (cycle === '연') return div;
@@ -82,43 +82,50 @@ function getPeriodDividend(item, period) {
 
 function getFilteredAndSortedData() {
   let data = [];
-  if (state.market === 'asset') {
-    data = [...etfData.domestic, ...etfData.us].filter(item => item.assetClass === state.category);
+  
+  // 1. 데이터 소스 결정 (순위 항목일 경우 전체 ETF 대상, 아니면 시장별 대상)
+  if (RANK_PILLS.includes(state.category)) {
+      data = [...etfData.domestic, ...etfData.us];
+  } else if (state.market === 'asset') {
+      data = [...etfData.domestic, ...etfData.us].filter(item => item.assetClass === state.category);
   } else {
-    data = [...etfData[state.market]];
-    if (state.market === 'us' || (state.market === 'domestic' && !DOMESTIC_CATEGORIES.includes(state.category))) {
-      data = data.filter(item => item.category === state.category);
-    }
+      data = [...etfData[state.market]];
+      // 개별 시장 탭의 섹터 필터링 (예: 국내-지수, 미국-에너지)
+      if (DOMESTIC_SECTORS.includes(state.category) || US_SECTORS.includes(state.category)) {
+          data = data.filter(item => item.category === state.category);
+      }
   }
 
-  // [배당금 카테고리 전용 필터링]
-  if (state.market === 'domestic' && state.category === '배당금') {
+  // 2. 배당금 전용 필터링
+  if (state.category === '배당금') {
       if (state.subCategory) {
-          // 서브 카테고리(1,3,6,12m) 선택 시 해당 기간 배당금이 0보다 큰 항목만 노출 (연배당이 1개월에 뜨지 않게 함)
           data = data.filter(item => getPeriodDividend(item, state.subCategory) > 0);
       } else {
-          // 전체 배당금 탭에서는 배당금이 있는 모든 종목 노출
           data = data.filter(item => item.dividend > 0);
       }
   }
 
+  // 3. 검색어 필터링
   if (state.searchQuery) {
     const query = state.searchQuery.toLowerCase();
     data = data.filter(item => item.name.toLowerCase().includes(query));
   }
 
+  // 4. 정렬 로직
   data.sort((a, b) => {
+    // 즐겨찾기 우선
     const aFav = state.watchlist.has(a.name) ? 1 : 0;
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
 
-    // [배당금 카테고리 전용 정렬] 성장률을 무시하고 배당금액으로만 정렬
-    if (state.market === 'domestic' && state.category === '배당금') {
+    // 배당금 순위는 오직 배당금액으로만 (성장률 무시)
+    if (state.category === '배당금') {
         let valA = state.subCategory ? getPeriodDividend(a, state.subCategory) : a.dividend;
         let valB = state.subCategory ? getPeriodDividend(b, state.subCategory) : b.dividend;
         return state.sortOrder === 'asc' ? valA - valB : valB - valA;
     }
 
+    // 기타 항목 정렬
     let valA = a[state.sortField] || 0;
     let valB = b[state.sortField] || 0;
     return state.sortOrder === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
@@ -145,18 +152,17 @@ function renderSummary(data) {
 
 function renderTable(data) {
   const etfList = document.getElementById('etf-list');
-  const marketBenchmark = state.market === 'us' ? benchmarks.us : benchmarks.domestic;
 
   etfList.innerHTML = data.map(etf => {
-    const isOutperforming = etf.growth > marketBenchmark;
     const isDom = etfData.domestic.some(e => e.name === etf.name);
     const divSign = isDom ? '₩' : '$';
+    const benchmark = isDom ? benchmarks.domestic : benchmarks.us;
+    const isOutperforming = etf.growth > benchmark;
     
-    // 배당금 카테고리일 때 표시 문구 최적화
     let displayDividend = `${divSign}${etf.dividend}`;
-    if (state.market === 'domestic' && state.category === '배당금' && state.subCategory) {
+    if (state.category === '배당금' && state.subCategory) {
         const periodTotal = getPeriodDividend(etf, state.subCategory);
-        displayDividend = `${divSign}${periodTotal.toLocaleString()} <small style="font-size:0.7em; opacity:0.7;">(${state.subCategory} 합계)</small>`;
+        displayDividend = `${divSign}${periodTotal.toLocaleString()} <small style="font-size:0.75em; opacity:0.8;">(${state.subCategory} 합계)</small>`;
     }
 
     return `
@@ -167,6 +173,7 @@ function renderTable(data) {
       <td>
         <div class="etf-name">
           ${etf.name}
+          ${isDom ? '<span class="market-tag tag-kr">KR</span>' : '<span class="market-tag tag-us">US</span>'}
           ${isOutperforming ? `<span class="outperform-badge" title="시장지수 상회">UP</span>` : ''}
         </div>
         <div class="growth-bar-bg">
@@ -206,15 +213,21 @@ window.toggleWatchlist = (name) => {
 
 function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
-  let categories = state.market === 'domestic' ? DOMESTIC_CATEGORIES : (state.market === 'us' ? US_CATEGORIES : ASSET_CATEGORIES);
-  if (state.market === 'us') categories = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
+  let items = [];
 
-  let html = categories.map(cat => `
+  if (state.market === 'domestic') {
+      items = [...RANK_PILLS, ...DOMESTIC_SECTORS];
+  } else if (state.market === 'us') {
+      items = [...RANK_PILLS, ...US_SECTORS];
+  } else {
+      items = ASSET_CATEGORIES;
+  }
+
+  let html = items.map(cat => `
     <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${cat}</button>
   `).join('');
 
-  // Add Dividend Sub-categories if "배당금" is active
-  if (state.market === 'domestic' && state.category === '배당금') {
+  if (state.category === '배당금') {
       html += `<div class="sub-pills-wrapper">` + DIVIDEND_SUB_CATEGORIES.map(sub => `
           <button class="pill sub-pill ${state.subCategory === sub.value ? 'active' : ''}" data-sub-category="${sub.value}">${sub.label}</button>
       `).join('') + `</div>`;
@@ -224,20 +237,18 @@ function renderCategories() {
 }
 
 function applyCategoryLogic() {
-  if (state.market === 'domestic') {
-    switch(state.category) {
-      case '인기검색': state.sortField = 'popularity'; state.sortOrder = 'desc'; break;
-      case '거래대금': state.sortField = 'volume'; state.sortOrder = 'desc'; break;
-      case '상승률': state.sortField = 'growth'; state.sortOrder = 'desc'; break;
-      case '하락률': state.sortField = 'growth'; state.sortOrder = 'asc'; break;
-      case '운용규모': state.sortField = 'aum'; state.sortOrder = 'desc'; break;
-      case '배당금': 
-          state.sortField = 'dividend'; 
-          state.sortOrder = 'desc'; 
-          break;
-    }
-  } else {
-    state.sortField = 'growth'; state.sortOrder = 'desc';
+  switch(state.category) {
+    case '인기검색': state.sortField = 'popularity'; state.sortOrder = 'desc'; break;
+    case '거래대금': state.sortField = 'volume'; state.sortOrder = 'desc'; break;
+    case '상승률': state.sortField = 'growth'; state.sortOrder = 'desc'; break;
+    case '하락률': state.sortField = 'growth'; state.sortOrder = 'asc'; break;
+    case '운용규모': state.sortField = 'aum'; state.sortOrder = 'desc'; break;
+    case '배당금': 
+        state.sortField = 'dividend'; 
+        state.sortOrder = 'desc'; 
+        break;
+    default:
+        state.sortField = 'growth'; state.sortOrder = 'desc';
   }
 }
 
@@ -247,7 +258,7 @@ function setupEventListeners() {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.market = btn.dataset.market;
-      state.category = state.market === 'domestic' ? '인기검색' : (state.market === 'us' ? '고배당' : '주식형');
+      state.category = '인기검색'; // 탭 전환 시 기본 인기검색(통합순위)으로 초기화
       state.subCategory = '';
       renderCategories();
       updateDashboard();

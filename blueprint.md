@@ -1,38 +1,47 @@
-# ETF Dashboard Project Blueprint
+# ETF Dashboard Project Blueprint (Naver Style Redesign)
 
 ## Project Overview
-A modern, interactive ETF dashboard that allows users to explore domestic and international ETFs categorized by type. It features performance tracking across multiple timeframes (1m, 3m, 6m, 1y) and sorting capabilities.
+A comprehensive ETF dashboard redesigned to match the intuitive and data-rich format of Naver Finance's ETF section. It provides real-time-like analysis for domestic and US ETFs with specific thematic categorization and market-cap-based sorting.
 
 ## Features
-- **Categorization:** Separate views for Domestic (KR) and International (US/Global) ETFs.
-- **Performance Metrics:** Display growth rates for 1 month, 3 months, 6 months, and 1 year.
-- **Interactive Sorting:** Users can sort ETFs by any performance metric.
-- **Responsive Design:** Works seamlessly on mobile and desktop.
-- **Modern UI:** Premium aesthetic with glassmorphism, subtle textures, and vibrant accents.
+- **Market Selection:** Toggle between Domestic (KR) and US ETFs.
+- **Thematic Categorization (Sub-tabs):**
+  1.  **전체 (All):** Comprehensive list of all ETFs.
+  2.  **배당 (Dividend):** High dividend yield and dividend growth ETFs.
+  3.  **코스닥 (KOSDAQ):** ETFs tracking KOSDAQ indices.
+  4.  **방산 (Defense):** Aerospace and defense industry ETFs.
+  5.  **S&P500:** ETFs tracking the S&P 500 index.
+  6.  **나스닥100 (NASDAQ 100):** ETFs tracking the NASDAQ 100 index.
+  7.  **금 (Gold):** Gold spot and futures related ETFs.
+  8.  **월배당 (Monthly Dividend):** ETFs providing monthly distributions.
+  9.  **원유 (Crude Oil):** WTI and Brent crude oil related ETFs.
+  10. **2차전지 (Secondary Battery):** Battery and EV value chain ETFs.
+  11. **로봇 (Robot):** Robotics and AI automation ETFs.
+- **Market Cap Sorting:** Default sorting by AUM (Assets Under Management) to highlight major players.
+- **Performance Metrics:** Real-time-like price changes and multi-timeframe performance.
+- **Naver-style UI:** Clean, data-centric design with clear typography and professional color palette.
 
 ## Technical Stack
-- **HTML5:** Semantic structure and Web Components.
-- **CSS3:** Baseline features (Container Queries, `:has()`, CSS Variables, OKLCH colors).
-- **JavaScript:** ES Modules, Async/Await, and modern DOM APIs.
+- **HTML5:** Semantic structure and Web Components for reusable UI.
+- **CSS3:** Modern features (Container Queries, `:has()`, Flexbox/Grid, OKLCH).
+- **JavaScript:** ES Modules for clean logic separation.
 
 ## Implementation Plan
-... (기존 내용)
-4.  **Interactivity:**
-    *   Sorting logic based on user selection.
-    *   Filter logic for different categories (Tech, Index, Dividend, etc.).
-    *   Animations for data transitions.
-
-## 🚀 UX/UI 고도화 계획 (사용자 중심 개선)
-1.  **상단 요약 섹션**: 현재 탭의 Top 3 종목 및 평균 지표를 카드로 노출.
-2.  **검색 및 즐겨찾기**: 실시간 종목 검색 기능 및 별표(★) 클릭 시 상단 고정 기능.
-3.  **데이터 시각화**: 수익률 수치 옆에 강도를 나타내는 시각적 인디케이터 추가.
-4.  **반응형 레이아웃**: 모바일 사용자용 카드 뷰 전환 시스템 구축.
+1.  **Data Refinement:** Update `data.json` with a wider variety of ETFs covering all 11 categories for both KR and US markets.
+2.  **UI Redesign:** 
+    *   Update `index.html` for the new tab structure.
+    *   Refine `style.css` for a "Naver-like" clean aesthetic.
+3.  **Logic Update:**
+    *   Modify `main.js` to handle the new category filtering.
+    *   Set default sort to Market Cap (AUM).
+    *   Implement keyword-based and attribute-based filtering for categories.
+4.  **Validation:** Ensure all 11 categories work correctly for both markets and data is sorted properly.
 
 ## Current Steps
 - [x] Initial Research
-- [x] Create Blueprint
-- [x] Implement HTML structure
-- [x] Implement CSS styles
-- [x] Implement JS functionality
-- [x] Final validation and testing
-- [ ] UX 고도화 (진행 중)
+- [x] Redesign Plan (Blueprint Update)
+- [ ] Update `data.json` with comprehensive data
+- [ ] Implement new UI structure in `index.html`
+- [ ] Update `main.js` with new category logic and sorting
+- [ ] Refine CSS for Naver-style aesthetics
+- [ ] Final validation and testing

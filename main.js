@@ -34,7 +34,6 @@ async function init() {
     benchmarks = data.benchmarks;
     lastUpdateStr = data.lastUpdate;
     
-    renderCategories();
     updateDashboard();
     setupEventListeners();
   } catch (error) {
@@ -48,6 +47,7 @@ function updateDashboard() {
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
   renderTable(filteredData);
+  renderCategories(); // 렌더링 시점에 카테고리 버튼들도 다시 그림
   updateLastUpdateTime();
 }
 
@@ -74,10 +74,8 @@ function getFilteredAndSortedData() {
   // 2. 배당금 전용 필터링 및 정렬 기준 강화
   if (state.category === '배당금') {
       if (state.subCategory) {
-          // 특정 주기의 배당금만 노출 (월, 분기, 반기, 연 중 선택한 것만)
           data = data.filter(item => item.divCycle === state.subCategory && item.dividend > 0);
       } else {
-          // 전체 배당금 탭에서는 배당금이 있는 모든 종목 노출
           data = data.filter(item => item.dividend > 0);
       }
   }
@@ -94,7 +92,6 @@ function getFilteredAndSortedData() {
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
 
-    // 배당금 순위는 오직 배당금액으로만 (성장률 무시)
     if (state.category === '배당금') {
         let valA = a.dividend || 0;
         let valB = b.dividend || 0;
@@ -231,7 +228,6 @@ function setupEventListeners() {
       state.market = btn.dataset.market;
       state.category = '인기검색';
       state.subCategory = '';
-      renderCategories();
       updateDashboard();
     });
   });
@@ -244,7 +240,6 @@ function setupEventListeners() {
             state.category = e.target.dataset.category;
             state.subCategory = ''; 
         }
-      renderCategories();
       updateDashboard();
     }
   });

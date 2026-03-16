@@ -3,6 +3,26 @@ let etfData = {};
 let benchmarks = {};
 let lastUpdateStr = '';
 
+let state = {
+  market: 'domestic',
+  category: '인기검색',
+  subCategory: '', // '1m', '3m', '6m', '1y' for Dividend
+  sortField: 'popularity',
+  sortOrder: 'desc',
+  searchQuery: '',
+  watchlist: new Set(JSON.parse(localStorage.getItem('etf-watchlist') || '[]'))
+};
+
+const DOMESTIC_CATEGORIES = ['인기검색', '거래대금', '상승률', '하락률', '운용규모', '배당금'];
+const US_CATEGORIES = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
+const ASSET_CATEGORIES = ['주식형', '채권형', '원자재형', '혼합자산형', '대체투자형'];
+const DIVIDEND_SUB_CATEGORIES = [
+    { label: '1개월 순위', value: '1m' },
+    { label: '3개월 순위', value: '3m' },
+    { label: '6개월 순위', value: '6m' },
+    { label: '1년 순위', value: '1y' }
+];
+
 async function init() {
   try {
     const response = await fetch('data.json');
@@ -41,6 +61,11 @@ function getFilteredAndSortedData() {
     if (state.market === 'us' || (state.market === 'domestic' && !DOMESTIC_CATEGORIES.includes(state.category))) {
       data = data.filter(item => item.category === state.category);
     }
+  }
+
+  // Filter by category for Dividend (only show stocks with dividend)
+  if (state.market === 'domestic' && state.category === '배당금') {
+      data = data.filter(item => item.dividend > 0);
   }
 
   if (state.searchQuery) {
@@ -135,9 +160,18 @@ function renderCategories() {
   let categories = state.market === 'domestic' ? DOMESTIC_CATEGORIES : (state.market === 'us' ? US_CATEGORIES : ASSET_CATEGORIES);
   if (state.market === 'us') categories = ['고배당', '매월배당', '일반국채', '단기국채', '귀금속', '에너지'];
 
-  categoryPills.innerHTML = categories.map(cat => `
+  let html = categories.map(cat => `
     <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${cat}</button>
   `).join('');
+
+  // Add Dividend Sub-categories if "배당금" is active
+  if (state.market === 'domestic' && state.category === '배당금') {
+      html += `<div class="sub-pills-wrapper">` + DIVIDEND_SUB_CATEGORIES.map(sub => `
+          <button class="pill sub-pill ${state.subCategory === sub.value ? 'active' : ''}" data-sub-category="${sub.value}">${sub.label}</button>
+      `).join('') + `</div>`;
+  }
+
+  categoryPills.innerHTML = html;
 }
 
 function applyCategoryLogic() {
@@ -148,7 +182,10 @@ function applyCategoryLogic() {
       case '상승률': state.sortField = 'growth'; state.sortOrder = 'desc'; break;
       case '하락률': state.sortField = 'growth'; state.sortOrder = 'asc'; break;
       case '운용규모': state.sortField = 'aum'; state.sortOrder = 'desc'; break;
-      case '배당금': state.sortField = 'dividend'; state.sortOrder = 'desc'; break;
+      case '배당금': 
+          state.sortField = state.subCategory || 'dividend'; 
+          state.sortOrder = 'desc'; 
+          break;
     }
   } else {
     state.sortField = 'growth'; state.sortOrder = 'desc';
@@ -162,6 +199,7 @@ function setupEventListeners() {
       btn.classList.add('active');
       state.market = btn.dataset.market;
       state.category = state.market === 'domestic' ? '인기검색' : (state.market === 'us' ? '고배당' : '주식형');
+      state.subCategory = '';
       renderCategories();
       updateDashboard();
     });
@@ -169,7 +207,12 @@ function setupEventListeners() {
 
   document.getElementById('category-pills').addEventListener('click', (e) => {
     if (e.target.classList.contains('pill')) {
-      state.category = e.target.dataset.category;
+        if (e.target.classList.contains('sub-pill')) {
+            state.subCategory = e.target.dataset.subCategory;
+        } else {
+            state.category = e.target.dataset.category;
+            state.subCategory = ''; // Reset sub-category when main category changes
+        }
       renderCategories();
       updateDashboard();
     }

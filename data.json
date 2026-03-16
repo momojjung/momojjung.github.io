@@ -1,24 +1,32 @@
 {
   "etfData": {
     "domestic": [
-      { "name": "KODEX 200위클리커버드콜", "category": "배당", "assetClass": "주식형", "growth": 2.5, "1m": 1.2, "3m": 3.5, "6m": 5.8, "1y": 8.2, "volume": 12000, "aum": 150000, "dividend": 263, "divCycle": "월", "popularity": 95, "fee": 0.25, "risk": 2 },
-      { "name": "SOL 미국배당미국채커버드콜", "category": "배당", "assetClass": "혼합자산형", "growth": 1.8, "1m": 0.8, "3m": 2.1, "6m": 4.5, "1y": 6.2, "volume": 8500, "aum": 95000, "dividend": 205, "divCycle": "월", "popularity": 92, "fee": 0.15, "risk": 3 },
-      { "name": "TIGER 미국30년국채프리미엄", "category": "배당", "assetClass": "채권형", "growth": -1.2, "1m": 0.5, "3m": -2.5, "6m": -1.8, "1y": 2.5, "volume": 25000, "aum": 550000, "dividend": 115, "divCycle": "월", "popularity": 98, "fee": 0.25, "risk": 4 },
-      { "name": "KODEX 200", "category": "지수", "assetClass": "주식형", "growth": 12.5, "1m": 2.1, "3m": 5.4, "6m": 8.2, "1y": 15.1, "volume": 4500, "aum": 650000, "dividend": 55, "divCycle": "분기", "popularity": 99, "fee": 0.05, "risk": 2 },
-      { "name": "TIGER 미국S&P500", "category": "지수", "assetClass": "주식형", "growth": 18.2, "1m": 3.2, "3m": 8.5, "6m": 12.4, "1y": 25.6, "volume": 35000, "aum": 1200000, "dividend": 42, "divCycle": "분기", "popularity": 100, "fee": 0.07, "risk": 2 },
-      { "name": "ARIRANG 고배당주", "category": "배당", "assetClass": "주식형", "growth": 6.8, "1m": 1.1, "3m": 2.5, "6m": 4.1, "1y": 8.5, "volume": 400, "aum": 35000, "dividend": 720, "divCycle": "연", "popularity": 55, "fee": 0.23, "risk": 3 },
-      { "name": "KBSTAR ESG사회책임투자", "category": "테마", "assetClass": "주식형", "growth": 5.2, "1m": 0.5, "3m": 1.8, "6m": 3.2, "1y": 7.5, "volume": 1200, "aum": 45000, "dividend": 180, "divCycle": "반기", "popularity": 45, "fee": 0.15, "risk": 3 },
-      { "name": "KODEX 배당성장", "category": "배당", "assetClass": "주식형", "growth": 8.5, "1m": 1.2, "3m": 3.1, "6m": 5.2, "1y": 9.8, "volume": 200, "aum": 12000, "dividend": 350, "divCycle": "연", "popularity": 40, "fee": 0.15, "risk": 3 },
-      { "name": "TIGER 리츠부동산인프라", "category": "리츠", "assetClass": "대체투자형", "growth": 4.5, "1m": 0.8, "3m": 1.5, "6m": 2.8, "1y": 5.5, "volume": 5000, "aum": 85000, "dividend": 35, "divCycle": "월", "popularity": 80, "fee": 0.29, "risk": 4 }
+      { "name": "RISE 미국AI밸류체인데일리고정커버드콜", "category": "배당", "assetClass": "주식형", "growth": 15.2, "1m": 2.5, "3m": 8.4, "6m": 12.5, "1y": 25.4, "volume": 15000, "aum": 85000, "dividend": 185, "divCycle": "월", "popularity": 98, "fee": 0.35, "risk": 2 },
+      { "name": "RISE 미국테크100데일리고정커버드콜", "category": "배당", "assetClass": "주식형", "growth": 14.8, "1m": 2.4, "3m": 8.1, "6m": 12.1, "1y": 24.8, "volume": 12000, "aum": 72000, "dividend": 185, "divCycle": "월", "popularity": 96, "fee": 0.35, "risk": 2 },
+      { "name": "KODEX 미국나스닥100데일리커버드콜OTM", "category": "배당", "assetClass": "주식형", "growth": 12.5, "1m": 2.1, "3m": 7.5, "6m": 10.8, "1y": 22.1, "volume": 25000, "aum": 125000, "dividend": 155, "divCycle": "월", "popularity": 100, "fee": 0.30, "risk": 2 },
+      { "name": "ACE 미국빅테크7+데일리타겟커버드콜", "category": "배당", "assetClass": "주식형", "growth": 11.2, "1m": 1.8, "3m": 6.8, "6m": 9.5, "1y": 18.5, "volume": 18000, "aum": 95000, "dividend": 149, "divCycle": "월", "popularity": 94, "fee": 0.30, "risk": 2 },
+      { "name": "KODEX 200타겟위클리커버드콜", "category": "배당", "assetClass": "주식형", "growth": 5.4, "1m": 1.2, "3m": 3.5, "6m": 5.2, "1y": 10.5, "volume": 35000, "aum": 450000, "dividend": 142, "divCycle": "월", "popularity": 99, "fee": 0.25, "risk": 2 },
+      { "name": "TIGER 미국AI빅테크10타겟데일리커버드콜", "category": "배당", "assetClass": "주식형", "growth": 13.5, "1m": 2.2, "3m": 7.2, "6m": 11.5, "1y": 23.2, "volume": 22000, "aum": 110000, "dividend": 139, "divCycle": "월", "popularity": 97, "fee": 0.30, "risk": 2 },
+      { "name": "SOL 미국30년국채커버드콜(합성)", "category": "배당", "assetClass": "채권형", "growth": -2.5, "1m": 0.5, "3m": -1.2, "6m": -3.5, "1y": 2.1, "volume": 45000, "aum": 550000, "dividend": 130, "divCycle": "월", "popularity": 98, "fee": 0.25, "risk": 4 },
+      { "name": "RISE 200위클리커버드콜", "category": "배당", "assetClass": "주식형", "growth": 4.8, "1m": 1.1, "3m": 3.2, "6m": 4.8, "1y": 9.5, "volume": 15000, "aum": 85000, "dividend": 128, "divCycle": "월", "popularity": 92, "fee": 0.25, "risk": 2 },
+      { "name": "ACE 미국반도체데일리타겟커버드콜", "category": "배당", "assetClass": "주식형", "growth": 18.5, "1m": 3.5, "3m": 10.2, "6m": 15.8, "1y": 32.4, "volume": 28000, "aum": 135000, "dividend": 128, "divCycle": "월", "popularity": 95, "fee": 0.30, "risk": 2 },
+      { "name": "PLUS 고배당주위클리커버드콜", "category": "배당", "assetClass": "주식형", "growth": 6.2, "1m": 1.2, "3m": 3.8, "6m": 5.5, "1y": 11.2, "volume": 8500, "aum": 45000, "dividend": 130, "divCycle": "월", "popularity": 88, "fee": 0.30, "risk": 3 },
+      { "name": "KODEX 200", "category": "지수", "assetClass": "주식형", "growth": 8.5, "1m": 1.5, "3m": 4.2, "6m": 6.8, "1y": 12.5, "volume": 120000, "aum": 6500000, "dividend": 65, "divCycle": "분기", "popularity": 100, "fee": 0.05, "risk": 2 },
+      { "name": "TIGER 200", "category": "지수", "assetClass": "주식형", "growth": 8.4, "1m": 1.4, "3m": 4.1, "6m": 6.7, "1y": 12.4, "volume": 85000, "aum": 4200000, "dividend": 62, "divCycle": "분기", "popularity": 98, "fee": 0.05, "risk": 2 },
+      { "name": "TIGER 미국S&P500", "category": "지수", "assetClass": "주식형", "growth": 18.5, "1m": 3.5, "3m": 8.2, "6m": 12.5, "1y": 25.4, "volume": 150000, "aum": 3500000, "dividend": 45, "divCycle": "분기", "popularity": 100, "fee": 0.07, "risk": 2 },
+      { "name": "ARIRANG 고배당주", "category": "배당", "assetClass": "주식형", "growth": 10.5, "1m": 1.2, "3m": 3.5, "6m": 7.2, "1y": 15.8, "volume": 5000, "aum": 250000, "dividend": 780, "divCycle": "연", "popularity": 85, "fee": 0.23, "risk": 3 },
+      { "name": "KODEX 배당성장", "category": "배당", "assetClass": "주식형", "growth": 12.1, "1m": 1.5, "3m": 4.2, "6m": 8.5, "1y": 18.2, "volume": 3500, "aum": 120000, "dividend": 420, "divCycle": "연", "popularity": 80, "fee": 0.15, "risk": 3 },
+      { "name": "KBSTAR ESG사회책임투자", "category": "테마", "assetClass": "주식형", "growth": 7.5, "1m": 0.8, "3m": 2.5, "6m": 4.2, "1y": 10.5, "volume": 2500, "aum": 85000, "dividend": 210, "divCycle": "반기", "popularity": 75, "fee": 0.15, "risk": 3 }
     ],
     "us": [
-      { "name": "CONY (YieldMax Coinbase)", "category": "매월배당", "assetClass": "주식형", "growth": 45.2, "1m": 12.5, "3m": 25.8, "6m": 35.2, "1y": 85.4, "dividend": 1.25, "divCycle": "월", "fee": 0.99, "risk": 1 },
-      { "name": "SCHD (Dividend Equity)", "category": "고배당", "assetClass": "주식형", "growth": 10.8, "1m": 1.5, "3m": 3.8, "6m": 7.1, "1y": 13.5, "dividend": 0.82, "divCycle": "분기", "fee": 0.06, "risk": 3 },
-      { "name": "JEPI (Premium Income)", "category": "매월배당", "assetClass": "주식형", "growth": 8.4, "1m": 0.8, "3m": 2.5, "6m": 4.8, "1y": 10.2, "dividend": 0.45, "divCycle": "월", "fee": 0.35, "risk": 4 },
-      { "name": "JEPQ (NASDAQ Premium)", "category": "매월배당", "assetClass": "주식형", "growth": 15.2, "1m": 2.5, "3m": 6.8, "6m": 10.2, "1y": 22.4, "dividend": 0.48, "divCycle": "월", "fee": 0.35, "risk": 4 },
-      { "name": "TLT (20+ Yr Treasury)", "category": "일반국채", "assetClass": "채권형", "growth": -5.2, "1m": -1.2, "3m": -3.5, "6m": -2.1, "1y": 1.5, "dividend": 0.35, "divCycle": "월", "fee": 0.15, "risk": 4 }
+      { "name": "JEPQ (Nasdaq Equity Premium)", "category": "매월배당", "assetClass": "주식형", "growth": 15.2, "1m": 2.5, "3m": 6.8, "6m": 10.5, "1y": 22.4, "dividend": 0.48, "divCycle": "월", "fee": 0.35, "risk": 4 },
+      { "name": "JEPI (Equity Premium Income)", "category": "매월배당", "assetClass": "주식형", "growth": 8.5, "1m": 1.2, "3m": 3.5, "6m": 5.8, "1y": 12.1, "dividend": 0.42, "divCycle": "월", "fee": 0.35, "risk": 4 },
+      { "name": "SDIV (SuperDividend)", "category": "매월배당", "assetClass": "주식형", "growth": 5.2, "1m": 0.8, "3m": 2.1, "6m": 3.5, "1y": 8.2, "dividend": 0.22, "divCycle": "월", "fee": 0.58, "risk": 3 },
+      { "name": "SCHD (US Dividend Equity)", "category": "고배당", "assetClass": "주식형", "growth": 12.5, "1m": 2.1, "3m": 5.2, "6m": 8.5, "1y": 15.4, "dividend": 0.85, "divCycle": "분기", "fee": 0.06, "risk": 3 },
+      { "name": "VYM (High Dividend Yield)", "category": "고배당", "assetClass": "주식형", "growth": 11.2, "1m": 1.8, "3m": 4.8, "6m": 7.5, "1y": 13.8, "dividend": 0.92, "divCycle": "분기", "fee": 0.06, "risk": 3 },
+      { "name": "VIG (Dividend Appreciation)", "category": "고배당", "assetClass": "주식형", "growth": 14.5, "1m": 2.4, "3m": 6.5, "6m": 9.8, "1y": 18.5, "dividend": 0.78, "divCycle": "분기", "fee": 0.06, "risk": 3 }
     ]
   },
-  "benchmarks": { "domestic": 12.5, "us": 18.2 },
-  "lastUpdate": "2026-03-16 16:00"
+  "benchmarks": { "domestic": 8.5, "us": 18.5 },
+  "lastUpdate": "2025-03-16 16:00"
 }

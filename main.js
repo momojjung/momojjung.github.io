@@ -17,6 +17,25 @@ const NAVER_CATEGORIES = [
   '전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'
 ];
 
+const GLOBAL_MARKETS = [
+  { name: 'KOSPI', val: 2650.45, change: 1.25 },
+  { name: 'KOSDAQ', val: 875.12, change: -0.45 },
+  { name: 'S&P 500', val: 5120.34, change: 0.85 },
+  { name: 'NASDAQ', val: 16245.12, change: 1.15 },
+  { name: 'FTSE 100', val: 7820.45, change: 0.32 },
+  { name: 'Nikkei 225', val: 38520.12, change: 1.45 },
+  { name: 'Shanghai', val: 3050.45, change: -0.12 },
+  { name: 'DAX', val: 17850.32, change: 0.54 }
+];
+
+const TRENDING_NEWS = [
+  { cat: '증시', title: '금리 인하 기대감에 미 증시 일제히 상승 마감' },
+  { cat: '경제', title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인' },
+  { cat: '산업', title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대' },
+  { cat: '속보', title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과' },
+  { cat: '분석', title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"' }
+];
+
 async function init() {
   try {
     const response = await fetch('data.json');
@@ -28,11 +47,64 @@ async function init() {
     // 초기 로드 시 실시간 데이터처럼 약간의 변동성 부여
     fluctuateAllData();
     
+    initGlobalIndices();
+    initTrendingNews();
+    
     updateDashboard();
     setupEventListeners();
   } catch (error) {
     console.error('Failed to load ETF data:', error);
   }
+}
+
+function initGlobalIndices() {
+  const ticker = document.getElementById('index-ticker');
+  const render = () => {
+    // 티커 효과를 위해 데이터를 두 번 반복
+    const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
+    ticker.innerHTML = items.map(idx => {
+      const isPos = idx.change >= 0;
+      return `
+        <div class="index-item">
+          <span class="index-name">${idx.name}</span>
+          <span class="index-val">${idx.val.toLocaleString()}</span>
+          <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
+            ${isPos ? '▲' : '▼'} ${Math.abs(idx.change)}%
+          </span>
+        </div>
+      `;
+    }).join('');
+  };
+  render();
+}
+
+function initTrendingNews() {
+  const newsContainer = document.getElementById('trending-news');
+  let currentIdx = 0;
+
+  const renderNews = () => {
+    newsContainer.innerHTML = TRENDING_NEWS.map((news, i) => `
+      <div class="news-item ${i === 0 ? 'active' : ''}" style="transform: translateY(${i * 100}%)">
+        <span class="news-category">[${news.cat}]</span>
+        <a href="#" class="news-title">${news.title}</a>
+      </div>
+    `).join('');
+  };
+
+  const rotateNews = () => {
+    const items = newsContainer.querySelectorAll('.news-item');
+    items.forEach((item, i) => {
+      item.classList.remove('active');
+      let offset = (i - currentIdx);
+      if (offset < 0) offset += TRENDING_NEWS.length;
+      item.style.transform = `translateY(${offset * 100}%)`;
+      if (offset === 0) item.classList.add('active');
+    });
+    currentIdx = (currentIdx + 1) % TRENDING_NEWS.length;
+  };
+
+  renderNews();
+  setInterval(rotateNews, 4000);
 }
 
 // 실시간 데이터 시뮬레이션을 위한 수치 변동 함수
@@ -61,12 +133,21 @@ function updateDashboard() {
   
   // 클릭/업데이트 시마다 실시간 느낌을 주기 위해 미세 변동 적용
   fluctuateAllData();
+  fluctuateGlobalIndices();
   
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
   renderTable(filteredData);
   renderCategories();
   updateLastUpdateTime();
+}
+
+function fluctuateGlobalIndices() {
+  GLOBAL_MARKETS.forEach(idx => {
+    idx.val = fluctuate(idx.val, idx.val * 0.001);
+    idx.change = fluctuate(idx.change, 0.05);
+  });
+  initGlobalIndices();
 }
 
 function updateLastUpdateTime() {
@@ -126,7 +207,8 @@ function renderSummary(data) {
   document.getElementById('top-gainer-name').textContent = topGainer.name;
   document.getElementById('avg-growth-val').textContent = `${avgGrowth}%`;
   
-  document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}억`;
+  const unit = state.market === 'domestic' ? '억' : 'M';
+  document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}${unit}`;
   document.getElementById('top-div-name').textContent = topAum.name;
 }
 

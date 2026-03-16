@@ -52,6 +52,13 @@
 <body>
   <div class="background-texture"></div>
   
+  <!-- Global Market Indices Bar -->
+  <div class="global-indices-bar">
+    <div class="container index-inner" id="index-ticker">
+      <!-- Indices will be injected here -->
+    </div>
+  </div>
+
   <!-- [AdSense Nav] 명확한 사이트 구조 제공 -->
   <nav class="top-nav">
     <div class="container nav-inner">
@@ -79,6 +86,16 @@
       </div>
     </div>
   </header>
+
+  <!-- Trending News Section -->
+  <section class="news-ticker-section">
+    <div class="container news-inner">
+      <div class="news-label">실시간 주요 뉴스</div>
+      <div class="news-content" id="trending-news">
+        <!-- News headlines will be injected here -->
+      </div>
+    </div>
+  </section>
 
   <main class="container">
     <!-- [Placeholder] 상단 광고 영역 (AdSense Slot) -->
@@ -118,7 +135,7 @@
         <button class="nav-btn active" data-market="domestic">국내 ETF</button>
         <button class="nav-btn" data-market="us">미국 ETF</button>
       </nav>
-      <div class="market-cap-notice" style="text-align: center; font-weight: 800; color: var(--primary); margin: 10px 0; font-size: 1.1rem;">
+      <div class="market-cap-notice" style="text-align: left; font-weight: 700; color: #666; margin: -10px 0 15px 5px; font-size: 0.9rem;">
         ** 시가총액 상위 기준 **
       </div>
       <div class="filters-bar">

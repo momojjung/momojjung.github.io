@@ -58,22 +58,26 @@ function getPeriodDividend(item, period) {
     if (!div) return 0;
 
     if (period === '1m') {
+        // 1개월은 오직 월배당만
         return cycle === '월' ? div : 0;
     } else if (period === '3m') {
+        // 3개월은 월배당(x3) + 분기배당
         if (cycle === '월') return div * 3;
         if (cycle === '분기') return div;
         return 0;
     } else if (period === '6m') {
+        // 6개월은 월배당(x6) + 분기배당(x2)
         if (cycle === '월') return div * 6;
         if (cycle === '분기') return div * 2;
         return 0;
     } else if (period === '1y') {
+        // 1년은 모든 배당 합산
         if (cycle === '월') return div * 12;
         if (cycle === '분기') return div * 4;
         if (cycle === '연') return div;
         return 0;
     }
-    return div;
+    return 0;
 }
 
 function getFilteredAndSortedData() {
@@ -87,9 +91,15 @@ function getFilteredAndSortedData() {
     }
   }
 
-  // Filter by category for Dividend (only show stocks with dividend)
+  // [배당금 카테고리 전용 필터링]
   if (state.market === 'domestic' && state.category === '배당금') {
-      data = data.filter(item => item.dividend > 0);
+      if (state.subCategory) {
+          // 서브 카테고리(1,3,6,12m) 선택 시 해당 기간 배당금이 0보다 큰 항목만 노출 (연배당이 1개월에 뜨지 않게 함)
+          data = data.filter(item => getPeriodDividend(item, state.subCategory) > 0);
+      } else {
+          // 전체 배당금 탭에서는 배당금이 있는 모든 종목 노출
+          data = data.filter(item => item.dividend > 0);
+      }
   }
 
   if (state.searchQuery) {
@@ -102,10 +112,10 @@ function getFilteredAndSortedData() {
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
 
-    // Custom sorting for Dividend sub-categories (sort by calculated dividend amount)
-    if (state.market === 'domestic' && state.category === '배당금' && state.subCategory) {
-        let valA = getPeriodDividend(a, state.subCategory);
-        let valB = getPeriodDividend(b, state.subCategory);
+    // [배당금 카테고리 전용 정렬] 성장률을 무시하고 배당금액으로만 정렬
+    if (state.market === 'domestic' && state.category === '배당금') {
+        let valA = state.subCategory ? getPeriodDividend(a, state.subCategory) : a.dividend;
+        let valB = state.subCategory ? getPeriodDividend(b, state.subCategory) : b.dividend;
         return state.sortOrder === 'asc' ? valA - valB : valB - valA;
     }
 
@@ -142,7 +152,7 @@ function renderTable(data) {
     const isDom = etfData.domestic.some(e => e.name === etf.name);
     const divSign = isDom ? '₩' : '$';
     
-    // If sub-category is active for dividend, show the calculated amount
+    // 배당금 카테고리일 때 표시 문구 최적화
     let displayDividend = `${divSign}${etf.dividend}`;
     if (state.market === 'domestic' && state.category === '배당금' && state.subCategory) {
         const periodTotal = getPeriodDividend(etf, state.subCategory);
@@ -222,7 +232,6 @@ function applyCategoryLogic() {
       case '하락률': state.sortField = 'growth'; state.sortOrder = 'asc'; break;
       case '운용규모': state.sortField = 'aum'; state.sortOrder = 'desc'; break;
       case '배당금': 
-          // If no subCategory, default sort by cycle dividend
           state.sortField = 'dividend'; 
           state.sortOrder = 'desc'; 
           break;
@@ -251,7 +260,7 @@ function setupEventListeners() {
             state.subCategory = e.target.dataset.subCategory;
         } else {
             state.category = e.target.dataset.category;
-            state.subCategory = ''; // Reset sub-category when main category changes
+            state.subCategory = ''; 
         }
       renderCategories();
       updateDashboard();

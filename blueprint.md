@@ -5,10 +5,11 @@ A comprehensive ETF dashboard redesigned to match the intuitive and data-rich fo
 
 ## Features
 - **Market Selection:** Toggle between Domestic (KR) and US ETFs.
+  - *Note:* The 'KOSDAQ' category is automatically hidden when the US market is selected.
 - **Thematic Categorization (Sub-tabs):**
   1.  **전체 (All):** Comprehensive list of all ETFs.
   2.  **배당 (Dividend):** High dividend yield and dividend growth ETFs.
-  3.  **코스닥 (KOSDAQ):** ETFs tracking KOSDAQ indices.
+  3.  **코스닥 (KOSDAQ):** ETFs tracking KOSDAQ indices (Domestic KR only).
   4.  **방산 (Defense):** Aerospace and defense industry ETFs.
   5.  **S&P500:** ETFs tracking the S&P 500 index.
   6.  **나스닥100 (NASDAQ 100):** ETFs tracking the NASDAQ 100 index.

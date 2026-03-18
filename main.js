@@ -397,12 +397,21 @@ function renderTable(data) {
 function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
   const tCats = TRANSLATIONS[state.lang].categories;
-  
-  categoryPills.innerHTML = NAVER_CATEGORIES.map(cat => `
+
+  // 미국 시장일 경우 '코스닥' 제외
+  let categories = NAVER_CATEGORIES;
+  if (state.market === 'us') {
+    categories = NAVER_CATEGORIES.filter(c => c !== '코스닥');
+    // 만약 현재 선택된 카테고리가 '코스닥'인데 시장을 미국으로 바꿨다면 '전체'로 초기화
+    if (state.category === '코스닥') {
+      state.category = '전체';
+    }
+  }
+
+  categoryPills.innerHTML = categories.map(cat => `
     <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${tCats[cat] || cat}</button>
   `).join('');
 }
-
 window.toggleWatchlist = (name) => {
   if (state.watchlist.has(name)) state.watchlist.delete(name);
   else state.watchlist.add(name);

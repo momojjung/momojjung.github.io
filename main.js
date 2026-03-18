@@ -176,27 +176,8 @@ function initGlobalIndices() {
 
 function initTrendingNews() {
   const newsContainer = document.getElementById('trending-news');
-  const modal = document.getElementById('news-modal');
-  const closeBtn = document.getElementById('close-modal');
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
-
-  const openModal = (news) => {
-    document.getElementById('modal-news-cat').textContent = tCats[news.cat] || news.cat;
-    document.getElementById('modal-news-title').textContent = news.title;
-    document.getElementById('modal-news-summary').textContent = news.summary;
-    document.getElementById('modal-news-source').textContent = news.source;
-    const urlBtn = document.getElementById('modal-news-url');
-    urlBtn.href = news.url;
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // 스크롤 방지
-  };
-
-  const closeModal = () => {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  };
 
   const renderNews = () => {
     newsContainer.innerHTML = TRENDING_NEWS.map((news, i) => `
@@ -206,14 +187,6 @@ function initTrendingNews() {
         <span class="news-source">${news.source}</span>
       </div>
     `).join('');
-
-    // 클릭 이벤트 리스너 추가
-    newsContainer.querySelectorAll('.news-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const idx = item.getAttribute('data-index');
-        openModal(TRENDING_NEWS[idx]);
-      });
-    });
   };
 
   const rotateNews = () => {
@@ -229,15 +202,31 @@ function initTrendingNews() {
     currentIdx = (currentIdx + 1) % TRENDING_NEWS.length;
   };
 
-  closeBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
   renderNews();
   if (window.newsInterval) clearInterval(window.newsInterval);
   window.newsInterval = setInterval(rotateNews, 4000);
 }
+
+const openNewsModal = (news) => {
+  const modal = document.getElementById('news-modal');
+  const tCats = TRANSLATIONS[state.lang]['news-cats'];
+  
+  document.getElementById('modal-news-cat').textContent = tCats[news.cat] || news.cat;
+  document.getElementById('modal-news-title').textContent = news.title;
+  document.getElementById('modal-news-summary').textContent = news.summary;
+  document.getElementById('modal-news-source').textContent = news.source;
+  const urlBtn = document.getElementById('modal-news-url');
+  urlBtn.href = news.url;
+  
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+
+const closeNewsModal = () => {
+  const modal = document.getElementById('news-modal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+};
 
 // 실시간 데이터 시뮬레이션을 위한 수치 변동 함수
 function fluctuate(val, range = 0.5) {
@@ -420,6 +409,26 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
+  // 뉴스 티커 클릭 이벤트 위임
+  const newsContainer = document.getElementById('trending-news');
+  newsContainer.addEventListener('click', (e) => {
+    const item = e.target.closest('.news-item');
+    if (item) {
+      const idx = item.getAttribute('data-index');
+      openNewsModal(TRENDING_NEWS[idx]);
+    }
+  });
+
+  // 모달 닫기 이벤트
+  const modal = document.getElementById('news-modal');
+  const closeBtn = document.getElementById('close-modal');
+  if (closeBtn) closeBtn.addEventListener('click', closeNewsModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeNewsModal();
+    });
+  }
+
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));

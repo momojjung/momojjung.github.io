@@ -215,8 +215,12 @@ const openNewsModal = (news) => {
   document.getElementById('modal-news-title').textContent = news.title;
   document.getElementById('modal-news-summary').textContent = news.summary;
   document.getElementById('modal-news-source').textContent = news.source;
+  
+  const urlText = document.getElementById('modal-news-url-text');
+  if (urlText) urlText.textContent = news.url;
+  
   const urlBtn = document.getElementById('modal-news-url');
-  urlBtn.href = news.url;
+  if (urlBtn) urlBtn.href = news.url;
   
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';

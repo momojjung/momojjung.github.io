@@ -95,11 +95,41 @@ const GLOBAL_MARKETS = [
 ];
 
 const TRENDING_NEWS = [
-  { cat: '증시', title: '금리 인하 기대감에 미 증시 일제히 상승 마감' },
-  { cat: '경제', title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인' },
-  { cat: '산업', title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대' },
-  { cat: '속보', title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과' },
-  { cat: '분석', title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"' }
+  { 
+    cat: '증시', 
+    title: '금리 인하 기대감에 미 증시 일제히 상승 마감', 
+    url: 'https://finance.naver.com/news/news_read.naver?article_id=0005213600&office_id=015', 
+    source: '한국경제',
+    summary: '미국 소비자물가지수(CPI) 둔화 소식에 연준의 조기 금리 인하 기대감이 커지며 뉴욕 증시가 일제히 강세를 보였습니다.'
+  },
+  { 
+    cat: '경제', 
+    title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인', 
+    url: 'https://finance.naver.com/news/news_read.naver?article_id=0014568212&office_id=001', 
+    source: '연합뉴스',
+    summary: '올해 들어 반도체 수출이 가파른 회복세를 보이면서 전체 수출 실적을 견인하고 있습니다. 5개월 연속 성장세입니다.'
+  },
+  { 
+    cat: '산업', 
+    title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대', 
+    url: 'https://finance.naver.com/news/news_read.naver?article_id=0005698241&office_id=018', 
+    source: '이데일리',
+    summary: '삼성SDI, 에코프로비엠 등 주요 2차전지 종목들의 실적 발표를 앞두고 투자자들의 관망세가 짙어지며 주가 변동성이 커지고 있습니다.'
+  },
+  { 
+    cat: '속보', 
+    title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과', 
+    url: 'https://finance.naver.com/news/news_read.naver?article_id=0004932145&office_id=011', 
+    source: '서울경제',
+    summary: '일본 증시가 버블 경제 붕괴 이후 약 34년 만에 최고치를 경신했습니다. 기업 실적 개선과 엔저 현상이 주요 원인입니다.'
+  },
+  { 
+    cat: '분석', 
+    title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"', 
+    url: 'https://finance.naver.com/news/news_read.naver?article_id=0002124567&office_id=008', 
+    source: '머니투데이',
+    summary: '안정적인 현금 흐름을 선호하는 투자자들이 늘어나면서 매월 배당을 지급하는 ETF와 성장성이 높은 AI·로봇 테마 ETF가 인기입니다.'
+  }
 ];
 
 async function init() {
@@ -146,16 +176,44 @@ function initGlobalIndices() {
 
 function initTrendingNews() {
   const newsContainer = document.getElementById('trending-news');
+  const modal = document.getElementById('news-modal');
+  const closeBtn = document.getElementById('close-modal');
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
 
+  const openModal = (news) => {
+    document.getElementById('modal-news-cat').textContent = tCats[news.cat] || news.cat;
+    document.getElementById('modal-news-title').textContent = news.title;
+    document.getElementById('modal-news-summary').textContent = news.summary;
+    document.getElementById('modal-news-source').textContent = news.source;
+    const urlBtn = document.getElementById('modal-news-url');
+    urlBtn.href = news.url;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // 스크롤 방지
+  };
+
+  const closeModal = () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
   const renderNews = () => {
     newsContainer.innerHTML = TRENDING_NEWS.map((news, i) => `
-      <div class="news-item ${i === 0 ? 'active' : ''}" style="transform: translateY(${i * 100}%)">
+      <div class="news-item ${i === 0 ? 'active' : ''}" style="transform: translateY(${i * 100}%)" data-index="${i}">
         <span class="news-category">[${tCats[news.cat] || news.cat}]</span>
-        <a href="#" class="news-title">${news.title}</a>
+        <span class="news-title">${news.title}</span>
+        <span class="news-source">${news.source}</span>
       </div>
     `).join('');
+
+    // 클릭 이벤트 리스너 추가
+    newsContainer.querySelectorAll('.news-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = item.getAttribute('data-index');
+        openModal(TRENDING_NEWS[idx]);
+      });
+    });
   };
 
   const rotateNews = () => {
@@ -170,6 +228,11 @@ function initTrendingNews() {
     });
     currentIdx = (currentIdx + 1) % TRENDING_NEWS.length;
   };
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 
   renderNews();
   if (window.newsInterval) clearInterval(window.newsInterval);

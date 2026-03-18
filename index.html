@@ -26,21 +26,24 @@
   <meta name="google-adsense-account" content="ca-pub-4673553755265940">
   
   <!-- [AdSense SEO] 검색 엔진 최적화 메타 태그 -->
-  <title>ETF Insight | 국내·미국 ETF 실시간 분석 및 전문 투자 가이드</title>
-  <meta name="description" content="KODEX, TIGER 국내 ETF부터 SCHD, JEPI 등 미국 배당 ETF까지 최신 주당 배당금 정보와 공시 위험등급을 기반으로 한 전문 투자 분석 데이터를 제공합니다.">
+  <title>ETF Insight | 국내·미국 ETF 실시간 배당금 순위 및 분석 가이드</title>
+  <meta name="description" content="KODEX, TIGER 국내 ETF부터 SCHD, JEPI 등 미국 고배당 ETF까지 실시간 배당금(분배금), 시가총액, 수익률 데이터를 분석합니다. 전문적인 ETF 투자 가이드를 확인하세요.">
   <meta name="author" content="ETF Insight Team">
-  <meta name="keywords" content="ETF투자, 배당금순위, 국내ETF추천, 미국배당주, ETF수익률계산, 금융데이터분석">
+  <meta name="keywords" content="ETF투자, 배당금순위, 국내ETF추천, 미국배당주, ETF수익률, KODEX 200, TIGER 미국S&P500, 배당성장주">
   
   <!-- [JSON-LD] 구글 검색봇을 위한 구조화 데이터 -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "FinancialService",
+    "@type": "WebSite",
     "name": "ETF Insight",
-    "description": "실시간 ETF 데이터 분석 및 투자 가이드 제공",
+    "description": "실시간 ETF 데이터 분석 및 전문 투자 가이드 제공",
     "url": "https://etf-project-2026.web.app",
-    "areaServed": "KR",
-    "serviceType": "Investment Analysis"
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://etf-project-2026.web.app/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
   }
   </script>
 
@@ -188,6 +191,11 @@
           <h3>왜 자산별 분석이 필요한가?</h3>
           <p>단순히 주식형 ETF에만 투자하는 것은 시장 급락기에 포트폴리오를 방어하기 어렵게 만듭니다. 채권형, 원자재형, 대체투자형(리츠) 등으로 자산을 배분하면 전체 포트폴리오의 변동성을 낮출 수 있습니다. '자산별 분석' 기능을 통해 자신의 투자 성향에 맞는 균형 잡힌 포트폴리오를 설계해 보세요.</p>
         </article>
+        <article class="info-article">
+          <div class="article-tag">시장 트렌드</div>
+          <h3>2026년 ETF 시장의 핵심 키워드</h3>
+          <p>인공지능(AI)과 로봇 공학의 비약적인 발전으로 관련 테마 ETF들이 시장을 주도하고 있습니다. 또한 전 세계적인 저성장 기조 속에서 '인컴(Income)' 전략이 중요해짐에 따라, 커버드콜 전략을 활용한 초고배당 ETF에 대한 수요가 지속적으로 증가하고 있습니다. 안정적인 현금 흐름 창출을 위한 배당성장주 투자가 그 어느 때보다 중요해진 시점입니다.</p>
+        </article>
       </div>
     </section>
 
@@ -221,8 +229,8 @@
         <div class="footer-nav">
           <h4>Policy</h4>
           <ul class="policy-links">
-            <li><a href="#" onclick="alert('개인정보처리방침: 당사는 사용자의 브라우저 로컬 스토리지에 즐겨찾기 정보를 저장하며, 외부로 개인정보를 수집하지 않습니다.')">개인정보처리방침</a></li>
-            <li><a href="#" onclick="alert('이용약관: 본 사이트의 데이터는 참고용이며, 투자 책임은 본인에게 있습니다.')">이용약관</a></li>
+            <li><a href="privacy.html">개인정보처리방침</a></li>
+            <li><a href="terms.html">이용약관</a></li>
             <li><a href="#about">사이트 소개</a></li>
           </ul>
         </div>
@@ -242,6 +250,24 @@
       <p class="copyright">&copy; 2026 ETF Insight. 모든 권리 보유.</p>
     </div>
   </footer>
+
+  <!-- News Detail Modal -->
+  <div id="news-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-cat" id="modal-news-cat"></span>
+        <button id="close-modal" class="close-btn">&times;</button>
+      </div>
+      <h2 id="modal-news-title"></h2>
+      <div class="modal-body">
+        <p id="modal-news-summary" class="news-summary"></p>
+        <div class="modal-meta">
+          <span class="modal-source" id="modal-news-source"></span>
+          <a href="#" id="modal-news-url" target="_blank" class="modal-link">기사 원문 보기 ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script defer type="module" src="/main.js"></script>
 </body>

@@ -180,13 +180,25 @@ function initTrendingNews() {
   let currentIdx = 0;
 
   const renderNews = () => {
-    newsContainer.innerHTML = TRENDING_NEWS.map((news, i) => `
-      <div class="news-item ${i === 0 ? 'active' : ''}" style="transform: translateY(${i * 100}%)" data-index="${i}">
+    newsContainer.innerHTML = ''; // 기존 내용 삭제
+    
+    TRENDING_NEWS.forEach((news, i) => {
+      const item = document.createElement('div');
+      item.className = `news-item ${i === 0 ? 'active' : ''}`;
+      item.style.transform = `translateY(${i * 100}%)`;
+      item.innerHTML = `
         <span class="news-category">[${tCats[news.cat] || news.cat}]</span>
         <span class="news-title">${news.title}</span>
         <span class="news-source">${news.source}</span>
-      </div>
-    `).join('');
+      `;
+      
+      // 직접 이벤트 리스너 할당으로 인덱스 매칭 보장
+      item.addEventListener('click', () => {
+        openNewsModal(news);
+      });
+      
+      newsContainer.appendChild(item);
+    });
   };
 
   const rotateNews = () => {
@@ -413,16 +425,6 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
-  // 뉴스 티커 클릭 이벤트 위임
-  const newsContainer = document.getElementById('trending-news');
-  newsContainer.addEventListener('click', (e) => {
-    const item = e.target.closest('.news-item');
-    if (item) {
-      const idx = item.getAttribute('data-index');
-      openNewsModal(TRENDING_NEWS[idx]);
-    }
-  });
-
   // 모달 닫기 이벤트
   const modal = document.getElementById('news-modal');
   const closeBtn = document.getElementById('close-modal');

@@ -98,35 +98,35 @@ const TRENDING_NEWS = [
   { 
     cat: '증시', 
     title: '금리 인하 기대감에 미 증시 일제히 상승 마감', 
-    url: 'https://finance.naver.com/news/news_read.naver?article_id=0005213600&office_id=015', 
+    url: 'https://news.naver.com', 
     source: '한국경제',
     summary: '미국 연준의 금리 인하 기대감이 시장에 확산되면서 뉴욕 증시의 주요 지수가 나란히 상승하며 거래를 마쳤습니다. 인플레이션 둔화 지표가 긍정적으로 작용했습니다.'
   },
   { 
     cat: '경제', 
     title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인', 
-    url: 'https://finance.naver.com/news/news_read.naver?article_id=0014568212&office_id=001', 
+    url: 'https://news.naver.com', 
     source: '연합뉴스',
     summary: '반도체 업황 회복에 힘입어 우리나라의 월간 수출이 5개월 연속 증가세를 이어갔습니다. 반도체 수출은 전년 대비 66.7% 급증하며 실적을 이끌었습니다.'
   },
   { 
     cat: '산업', 
     title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대', 
-    url: 'https://finance.naver.com/news/news_read.naver?article_id=0005698241&office_id=018', 
+    url: 'https://news.naver.com', 
     source: '이데일리',
     summary: '주요 2차전지 기업들의 실적 발표 시즌이 다가오면서 종목별 변동성이 커지는 모습입니다. 전기차 수요 둔화 우려 속에 기업별 실적 차별화가 나타날 전망입니다.'
   },
   { 
     cat: '속보', 
     title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과', 
-    url: 'https://finance.naver.com/news/news_read.naver?article_id=0004932145&office_id=011', 
+    url: 'https://news.naver.com', 
     source: '서울경제',
     summary: '일본 니케이225 지수가 엔화 약세와 기업 실적 호조에 힘입어 역대 최고치를 다시 갈아치웠습니다. 일본 증시의 밸류업 프로그램도 호재로 작용했습니다.'
   },
   { 
     cat: '분석', 
     title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"', 
-    url: 'https://finance.naver.com/news/news_read.naver?article_id=0002124567&office_id=008', 
+    url: 'https://news.naver.com', 
     source: '머니투데이',
     summary: '개인 투자자들 사이에서 매월 분배금을 받을 수 있는 월배당 ETF와 AI·로봇 산업 성장에 투자하는 테마형 ETF가 최고의 인기 투자처로 꼽히고 있습니다.'
   }
@@ -192,9 +192,9 @@ function initTrendingNews() {
         <span class="news-source">${news.source}</span>
       `;
       
-      // 직접 이벤트 리스너 할당으로 인덱스 매칭 보장
+      // 기사 클릭 시 해당 뉴스 메인(또는 원문)으로 직접 이동하도록 수정
       item.addEventListener('click', () => {
-        openNewsModal(news);
+        window.open(news.url, '_blank');
       });
       
       newsContainer.appendChild(item);

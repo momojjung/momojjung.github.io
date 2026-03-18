@@ -18,11 +18,8 @@ A comprehensive ETF dashboard redesigned to match the intuitive and data-rich fo
   9.  **원유 (Crude Oil):** WTI and Brent crude oil related ETFs.
   10. **2차전지 (Secondary Battery):** Battery and EV value chain ETFs.
   11. **로봇 (Robot):** Robotics and AI automation ETFs.
-- **Trending News:** Real-time news ticker with article titles.
-- **News Detail Modal:** Clicking a news item opens a modal showing:
-  - A 1-2 line summary of the article.
-  - The direct URL to the article.
-  - The news provider (source).
+- **Trending News:** Real-time news ticker with article titles. Clicking a news item navigates directly to the news main/source page for the latest updates.
+- **News Detail Modal:** (Legacy) Previously used to show a summary; now clicking news items provides direct access to the source.
 - **Market Cap Sorting:** Default sorting by AUM (Assets Under Management) to highlight major players.
 - **Performance Metrics:** Real-time-like price changes and multi-timeframe performance.
 - **Naver-style UI:** Clean, data-centric design with clear typography and professional color palette.

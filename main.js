@@ -100,35 +100,35 @@ const TRENDING_NEWS = [
     title: '금리 인하 기대감에 미 증시 일제히 상승 마감', 
     url: 'https://finance.naver.com/news/news_read.naver?article_id=0005213600&office_id=015', 
     source: '한국경제',
-    summary: '미국 소비자물가지수(CPI) 둔화 소식에 연준의 조기 금리 인하 기대감이 커지며 뉴욕 증시가 일제히 강세를 보였습니다.'
+    summary: '미국 연준의 금리 인하 기대감이 시장에 확산되면서 뉴욕 증시의 주요 지수가 나란히 상승하며 거래를 마쳤습니다. 인플레이션 둔화 지표가 긍정적으로 작용했습니다.'
   },
   { 
     cat: '경제', 
     title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인', 
     url: 'https://finance.naver.com/news/news_read.naver?article_id=0014568212&office_id=001', 
     source: '연합뉴스',
-    summary: '올해 들어 반도체 수출이 가파른 회복세를 보이면서 전체 수출 실적을 견인하고 있습니다. 5개월 연속 성장세입니다.'
+    summary: '반도체 업황 회복에 힘입어 우리나라의 월간 수출이 5개월 연속 증가세를 이어갔습니다. 반도체 수출은 전년 대비 66.7% 급증하며 실적을 이끌었습니다.'
   },
   { 
     cat: '산업', 
     title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대', 
     url: 'https://finance.naver.com/news/news_read.naver?article_id=0005698241&office_id=018', 
     source: '이데일리',
-    summary: '삼성SDI, 에코프로비엠 등 주요 2차전지 종목들의 실적 발표를 앞두고 투자자들의 관망세가 짙어지며 주가 변동성이 커지고 있습니다.'
+    summary: '주요 2차전지 기업들의 실적 발표 시즌이 다가오면서 종목별 변동성이 커지는 모습입니다. 전기차 수요 둔화 우려 속에 기업별 실적 차별화가 나타날 전망입니다.'
   },
   { 
     cat: '속보', 
     title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과', 
     url: 'https://finance.naver.com/news/news_read.naver?article_id=0004932145&office_id=011', 
     source: '서울경제',
-    summary: '일본 증시가 버블 경제 붕괴 이후 약 34년 만에 최고치를 경신했습니다. 기업 실적 개선과 엔저 현상이 주요 원인입니다.'
+    summary: '일본 니케이225 지수가 엔화 약세와 기업 실적 호조에 힘입어 역대 최고치를 다시 갈아치웠습니다. 일본 증시의 밸류업 프로그램도 호재로 작용했습니다.'
   },
   { 
     cat: '분석', 
     title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"', 
     url: 'https://finance.naver.com/news/news_read.naver?article_id=0002124567&office_id=008', 
     source: '머니투데이',
-    summary: '안정적인 현금 흐름을 선호하는 투자자들이 늘어나면서 매월 배당을 지급하는 ETF와 성장성이 높은 AI·로봇 테마 ETF가 인기입니다.'
+    summary: '개인 투자자들 사이에서 매월 분배금을 받을 수 있는 월배당 ETF와 AI·로봇 산업 성장에 투자하는 테마형 ETF가 최고의 인기 투자처로 꼽히고 있습니다.'
   }
 ];
 

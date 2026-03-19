@@ -799,3 +799,16 @@ footer {
   .footer-grid { grid-template-columns: 1fr; gap: 40px; }
   .nav-links { display: none; }
 }
+
+/* Ticker Source Tag */
+.ticker-source-tag {
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 10px;
+  flex-shrink: 0;
+  display: inline-block;
+}

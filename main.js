@@ -163,34 +163,57 @@ async function initGlobalIndices() {
 
 async function fetchGlobalIndices() {
   try {
-    const symbols = GLOBAL_MARKETS.map(m => m.symbol).join(',');
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    // 1. Fetch KOSPI, KOSDAQ from Naver Finance Polling API
+    const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ`;
+    const naverProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}`;
     
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error('Proxy response not ok');
-    const data = await response.json();
-    
-    if (!data || !data.contents) throw new Error('No contents from proxy');
-    
-    const contents = JSON.parse(data.contents);
-    if (!contents || !contents.quoteResponse || !contents.quoteResponse.result) {
-      throw new Error('Invalid data structure from Yahoo Finance');
-    }
-    
-    const quotes = contents.quoteResponse.result;
-    
-    GLOBAL_MARKETS = GLOBAL_MARKETS.map(market => {
-      const quote = quotes.find(q => q.symbol === market.symbol);
-      if (quote) {
-        return {
-          ...market,
-          val: quote.regularMarketPrice !== undefined ? quote.regularMarketPrice : market.val,
-          change: quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change
-        };
+    const naverRes = await fetch(naverProxyUrl);
+    const naverData = await naverRes.json();
+    if (naverData && naverData.contents) {
+      const naverContents = JSON.parse(naverData.contents);
+      if (naverContents && naverContents.result && naverContents.result.areas) {
+        const kospiData = naverContents.result.areas[0].datas.find(d => d.cd === 'KOSPI');
+        const kosdaqData = naverContents.result.areas[0].datas.find(d => d.cd === 'KOSDAQ');
+        
+        if (kospiData) {
+          const item = GLOBAL_MARKETS.find(m => m.name === 'KOSPI');
+          if (item) {
+            item.val = parseFloat(kospiData.nv.replace(/,/g, ''));
+            item.change = parseFloat(kospiData.cr);
+          }
+        }
+        if (kosdaqData) {
+          const item = GLOBAL_MARKETS.find(m => m.name === 'KOSDAQ');
+          if (item) {
+            item.val = parseFloat(kosdaqData.nv.replace(/,/g, ''));
+            item.change = parseFloat(kosdaqData.cr);
+          }
+        }
       }
-      return market;
-    });
+    }
+
+    // 2. Fetch other Global Indices (Yahoo Finance)
+    const otherMarkets = GLOBAL_MARKETS.filter(m => !['KOSPI', 'KOSDAQ'].includes(m.name));
+    const otherSymbols = otherMarkets.map(m => m.symbol).join(',');
+    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}`;
+    const yahooProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`;
+    
+    const yahooRes = await fetch(yahooProxyUrl);
+    const yahooData = await yahooRes.json();
+    if (yahooData && yahooData.contents) {
+      const yahooContents = JSON.parse(yahooData.contents);
+      if (yahooContents && yahooContents.quoteResponse && yahooContents.quoteResponse.result) {
+        const quotes = yahooContents.quoteResponse.result;
+        GLOBAL_MARKETS.forEach(market => {
+          if (['KOSPI', 'KOSDAQ'].includes(market.name)) return;
+          const quote = quotes.find(q => q.symbol === market.symbol);
+          if (quote) {
+            market.val = quote.regularMarketPrice !== undefined ? quote.regularMarketPrice : market.val;
+            market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
+          }
+        });
+      }
+    }
   } catch (error) {
     console.warn('Failed to fetch real-time indices, using simulation:', error);
   }
@@ -200,20 +223,26 @@ async function fetchGlobalIndices() {
 function renderGlobalIndices() {
   const ticker = document.getElementById('index-ticker');
   if (!ticker) return;
+  
   // 티커 효과를 위해 데이터를 두 번 반복
   const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
-  ticker.innerHTML = items.map(idx => {
-    const isPos = idx.change >= 0;
-    return `
-      <div class="index-item">
-        <span class="index-name">${idx.name}</span>
-        <span class="index-val">${idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-        <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
-          ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
-        </span>
-      </div>
-    `;
-  }).join('');
+  const sourceText = state.lang === 'ko' ? '출처: 네이버 증권' : 'Source: Naver Finance';
+
+  ticker.innerHTML = `
+    <div class="ticker-source-tag">${sourceText}</div>
+    ${items.map(idx => {
+      const isPos = idx.change >= 0;
+      return `
+        <div class="index-item">
+          <span class="index-name">${idx.name}</span>
+          <span class="index-val">${idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
+            ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
+          </span>
+        </div>
+      `;
+    }).join('')}
+  `;
 }
 
 function initTrendingNews() {

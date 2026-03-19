@@ -135,6 +135,7 @@ const TRENDING_NEWS = [
 async function init() {
   try {
     const response = await fetch('data.json');
+    if (!response.ok) throw new Error('data.json loading failed');
     const data = await response.json();
     etfData = data.etfData;
     benchmarks = data.benchmarks;
@@ -167,16 +168,25 @@ async function fetchGlobalIndices() {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     
     const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error('Proxy response not ok');
     const data = await response.json();
-    const quotes = JSON.parse(data.contents).quoteResponse.result;
+    
+    if (!data || !data.contents) throw new Error('No contents from proxy');
+    
+    const contents = JSON.parse(data.contents);
+    if (!contents || !contents.quoteResponse || !contents.quoteResponse.result) {
+      throw new Error('Invalid data structure from Yahoo Finance');
+    }
+    
+    const quotes = contents.quoteResponse.result;
     
     GLOBAL_MARKETS = GLOBAL_MARKETS.map(market => {
       const quote = quotes.find(q => q.symbol === market.symbol);
       if (quote) {
         return {
           ...market,
-          val: quote.regularMarketPrice,
-          change: parseFloat(quote.regularMarketChangePercent.toFixed(2))
+          val: quote.regularMarketPrice !== undefined ? quote.regularMarketPrice : market.val,
+          change: quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change
         };
       }
       return market;
@@ -285,6 +295,7 @@ function fluctuate(val, range = 0.5) {
 function fluctuateAllData() {
   const markets = ['domestic', 'us'];
   markets.forEach(m => {
+    if (!etfData[m]) return;
     etfData[m] = etfData[m].map(item => ({
       ...item,
       growth: fluctuate(item.growth, 0.2),
@@ -298,11 +309,10 @@ function fluctuateAllData() {
 }
 
 function updateDashboard() {
-  if (!etfData.domestic) return;
+  if (!etfData || !etfData.domestic) return;
   
   // 클릭/업데이트 시마다 실시간 느낌을 주기 위해 미세 변동 적용
   fluctuateAllData();
-  fluctuateGlobalIndices();
   
   applyTranslations();
   const filteredData = getFilteredAndSortedData();
@@ -345,6 +355,7 @@ function updateLastUpdateTime() {
 }
 
 function getFilteredAndSortedData() {
+  if (!etfData[state.market]) return [];
   let data = [...etfData[state.market]];
   
   // 카테고리 필터링
@@ -378,7 +389,7 @@ function getFilteredAndSortedData() {
 }
 
 function renderSummary(data) {
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
       document.getElementById('top-gainer-val').textContent = '-';
       document.getElementById('avg-growth-val').textContent = '-';
       document.getElementById('top-div-val').textContent = '-';
@@ -399,9 +410,15 @@ function renderSummary(data) {
 
 function renderTable(data) {
   const etfList = document.getElementById('etf-list');
+  if (!etfList) return;
   const isDom = state.market === 'domestic';
   const divSign = isDom ? '₩' : '$';
   const unit = TRANSLATIONS[state.lang][isDom ? 'unit-aum-kr' : 'unit-aum-us'];
+
+  if (!data || data.length === 0) {
+    etfList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">검색 결과가 없습니다.</td></tr>';
+    return;
+  }
 
   etfList.innerHTML = data.map(etf => {
     return `
@@ -433,6 +450,7 @@ function renderTable(data) {
 
 function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
+  if (!categoryPills) return;
   const tCats = TRANSLATIONS[state.lang].categories;
 
   // 미국 시장일 경우 '코스닥' 제외
@@ -487,17 +505,23 @@ function setupEventListeners() {
     });
   });
 
-  document.getElementById('category-pills').addEventListener('click', (e) => {
-    if (e.target.classList.contains('pill')) {
-      state.category = e.target.dataset.category;
-      updateDashboard();
-    }
-  });
+  const categoryPills = document.getElementById('category-pills');
+  if (categoryPills) {
+    categoryPills.addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        state.category = e.target.dataset.category;
+        updateDashboard();
+      }
+    });
+  }
 
-  document.getElementById('etf-search').addEventListener('input', (e) => {
-    state.searchQuery = e.target.value;
-    updateDashboard();
-  });
+  const searchInput = document.getElementById('etf-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      updateDashboard();
+    });
+  }
 
   document.querySelectorAll('th.sortable').forEach(th => {
     th.addEventListener('click', () => {

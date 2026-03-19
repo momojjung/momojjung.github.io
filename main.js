@@ -83,15 +83,15 @@ const NAVER_CATEGORIES = [
   '전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'
 ];
 
-const GLOBAL_MARKETS = [
-  { name: 'KOSPI', val: 2650.45, change: 1.25 },
-  { name: 'KOSDAQ', val: 875.12, change: -0.45 },
-  { name: 'S&P 500', val: 5120.34, change: 0.85 },
-  { name: 'NASDAQ', val: 16245.12, change: 1.15 },
-  { name: 'FTSE 100', val: 7820.45, change: 0.32 },
-  { name: 'Nikkei 225', val: 38520.12, change: 1.45 },
-  { name: 'Shanghai', val: 3050.45, change: -0.12 },
-  { name: 'DAX', val: 17850.32, change: 0.54 }
+let GLOBAL_MARKETS = [
+  { name: 'KOSPI', symbol: '^KS11', val: 2650.45, change: 1.25 },
+  { name: 'KOSDAQ', symbol: '^KQ11', val: 875.12, change: -0.45 },
+  { name: 'S&P 500', symbol: '^GSPC', val: 5120.34, change: 0.85 },
+  { name: 'NASDAQ', symbol: '^IXIC', val: 16245.12, change: 1.15 },
+  { name: 'Dow Jones', symbol: '^DJI', val: 39120.45, change: 0.65 },
+  { name: 'Nikkei 225', symbol: '^N225', val: 38520.12, change: 1.45 },
+  { name: 'FTSE 100', symbol: '^FTSE', val: 7820.45, change: 0.32 },
+  { name: 'DAX', symbol: '^GDAXI', val: 17850.32, change: 0.54 }
 ];
 
 const TRENDING_NEWS = [
@@ -143,7 +143,7 @@ async function init() {
     // 초기 로드 시 실시간 데이터처럼 약간의 변동성 부여
     fluctuateAllData();
     
-    initGlobalIndices();
+    await initGlobalIndices();
     initTrendingNews();
     
     updateDashboard();
@@ -153,25 +153,57 @@ async function init() {
   }
 }
 
-function initGlobalIndices() {
+async function initGlobalIndices() {
+  await fetchGlobalIndices();
+  // Refresh every 1 minute
+  if (window.indexInterval) clearInterval(window.indexInterval);
+  window.indexInterval = setInterval(fetchGlobalIndices, 60000);
+}
+
+async function fetchGlobalIndices() {
+  try {
+    const symbols = GLOBAL_MARKETS.map(m => m.symbol).join(',');
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    
+    const response = await fetch(proxyUrl);
+    const data = await response.json();
+    const quotes = JSON.parse(data.contents).quoteResponse.result;
+    
+    GLOBAL_MARKETS = GLOBAL_MARKETS.map(market => {
+      const quote = quotes.find(q => q.symbol === market.symbol);
+      if (quote) {
+        return {
+          ...market,
+          val: quote.regularMarketPrice,
+          change: parseFloat(quote.regularMarketChangePercent.toFixed(2))
+        };
+      }
+      return market;
+    });
+  } catch (error) {
+    console.warn('Failed to fetch real-time indices, using simulation:', error);
+  }
+  renderGlobalIndices();
+}
+
+function renderGlobalIndices() {
   const ticker = document.getElementById('index-ticker');
-  const render = () => {
-    // 티커 효과를 위해 데이터를 두 번 반복
-    const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
-    ticker.innerHTML = items.map(idx => {
-      const isPos = idx.change >= 0;
-      return `
-        <div class="index-item">
-          <span class="index-name">${idx.name}</span>
-          <span class="index-val">${idx.val.toLocaleString()}</span>
-          <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
-            ${isPos ? '▲' : '▼'} ${Math.abs(idx.change)}%
-          </span>
-        </div>
-      `;
-    }).join('');
-  };
-  render();
+  if (!ticker) return;
+  // 티커 효과를 위해 데이터를 두 번 반복
+  const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
+  ticker.innerHTML = items.map(idx => {
+    const isPos = idx.change >= 0;
+    return `
+      <div class="index-item">
+        <span class="index-name">${idx.name}</span>
+        <span class="index-val">${idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
+          ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
+        </span>
+      </div>
+    `;
+  }).join('');
 }
 
 function initTrendingNews() {
@@ -299,7 +331,7 @@ function fluctuateGlobalIndices() {
     idx.val = fluctuate(idx.val, idx.val * 0.001);
     idx.change = fluctuate(idx.change, 0.05);
   });
-  initGlobalIndices();
+  renderGlobalIndices();
 }
 
 function updateLastUpdateTime() {

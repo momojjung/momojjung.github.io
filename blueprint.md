@@ -43,9 +43,14 @@ A comprehensive ETF dashboard redesigned to match the intuitive and data-rich fo
 ## Current Steps
 - [x] Initial Research
 - [x] Redesign Plan (Blueprint Update)
-- [x] Update `data.json` with comprehensive data
+- [x] Update `data.json` with comprehensive data (10 items per category)
 - [x] Implement new UI structure in `index.html`
 - [x] Update `main.js` with new category logic and sorting
 - [x] Refine CSS for Naver-style aesthetics
 - [x] Implement News Detail Modal feature
-- [ ] Final validation and testing
+- [x] Expanded ETF items to 10 for each category
+- [x] Deployment to Firebase Hosting
+- [x] Real-time Global Stock Index Data Integration
+    - [x] Update `main.js` to fetch real-time indices from a public API
+    - [x] Handle API failures with fallback simulation
+    - [x] Deploy updated site to Firebase Hosting

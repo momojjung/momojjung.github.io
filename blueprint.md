@@ -54,3 +54,8 @@ A comprehensive ETF dashboard redesigned to match the intuitive and data-rich fo
     - [x] Update `main.js` to fetch real-time indices from a public API
     - [x] Handle API failures with fallback simulation
     - [x] Deploy updated site to Firebase Hosting
+- [x] AdSense & Crawler Optimization
+    - [x] Fixed syntax error (typo) in `index.html`
+    - [x] Added `robots.txt` with explicit permission for Google AdsBots
+    - [x] Optimized `firebase.json` with specific headers for `ads.txt` (MIME type and no-cache)
+    - [x] Cleaned up `ads.txt` file format

@@ -83,9 +83,10 @@ const NAVER_CATEGORIES = [
   '전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'
 ];
 
+// 금일 장마감 기준(2026-03-19) 데이터로 업데이트
 let GLOBAL_MARKETS = [
-  { name: 'KOSPI', symbol: '^KS11', val: 2650.45, change: 1.25 },
-  { name: 'KOSDAQ', symbol: '^KQ11', val: 875.12, change: -0.45 },
+  { name: 'KOSPI', symbol: 'KOSPI', val: 5763.22, change: -2.73 },
+  { name: 'KOSDAQ', symbol: 'KOSDAQ', val: 1143.48, change: -1.79 },
   { name: 'S&P 500', symbol: '^GSPC', val: 5120.34, change: 0.85 },
   { name: 'NASDAQ', symbol: '^IXIC', val: 16245.12, change: 1.15 },
   { name: 'Dow Jones', symbol: '^DJI', val: 39120.45, change: 0.65 },
@@ -97,38 +98,38 @@ let GLOBAL_MARKETS = [
 const TRENDING_NEWS = [
   { 
     cat: '증시', 
-    title: '금리 인하 기대감에 미 증시 일제히 상승 마감', 
+    title: '중동 긴장 고조에 코스피 5,763선으로 급락 마감', 
     url: 'https://news.naver.com', 
     source: '한국경제',
-    summary: '미국 연준의 금리 인하 기대감이 시장에 확산되면서 뉴욕 증시의 주요 지수가 나란히 상승하며 거래를 마쳤습니다. 인플레이션 둔화 지표가 긍정적으로 작용했습니다.'
+    summary: '중동 지역의 지정학적 리스크 확산과 국제 유가 급등 영향으로 국내 증시가 큰 폭의 하락세를 보였습니다. 인플레이션 우려가 다시 고개를 들고 있습니다.'
   },
   { 
     cat: '경제', 
-    title: '국내 수출 5개월 연속 플러스 행진... 반도체 견인', 
+    title: '환율 1,500원 돌파... 17년 만에 최고치 기록', 
     url: 'https://news.naver.com', 
     source: '연합뉴스',
-    summary: '반도체 업황 회복에 힘입어 우리나라의 월간 수출이 5개월 연속 증가세를 이어갔습니다. 반도체 수출은 전년 대비 66.7% 급증하며 실적을 이끌었습니다.'
+    summary: '달러 강세와 안전자산 선호 현상이 겹치면서 원/달러 환율이 1,500원을 넘어섰습니다. 이는 금융위기 이후 가장 높은 수준입니다.'
   },
   { 
     cat: '산업', 
-    title: '2차전지 관련주, 실적 발표 앞두고 변동성 확대', 
+    title: '반도체·자동차주 일제히 하락... 2차전지는 선방', 
     url: 'https://news.naver.com', 
     source: '이데일리',
-    summary: '주요 2차전지 기업들의 실적 발표 시즌이 다가오면서 종목별 변동성이 커지는 모습입니다. 전기차 수요 둔화 우려 속에 기업별 실적 차별화가 나타날 전망입니다.'
+    summary: '코스피 대형주들이 시장 급락의 직격탄을 맞은 가운데, 일부 테마주와 2차전지 관련주들은 상대적으로 낮은 하락폭을 기록하며 버텼습니다.'
   },
   { 
     cat: '속보', 
-    title: '일본 니케이 지수 역대 최고치 경신... 엔저 효과', 
+    title: '정부, 시장 변동성 확대에 긴급 시장상황 점검회의', 
     url: 'https://news.naver.com', 
     source: '서울경제',
-    summary: '일본 니케이225 지수가 엔화 약세와 기업 실적 호조에 힘입어 역대 최고치를 다시 갈아치웠습니다. 일본 증시의 밸류업 프로그램도 호재로 작용했습니다.'
+    summary: '금융당국은 최근 증시 급락과 환율 급등에 대응하기 위해 긴급 회의를 소집하고 시장 안정화 대책을 논의하기로 했습니다.'
   },
   { 
     cat: '분석', 
-    title: '올해 ETF 투자 키워드는 "월배당"과 "AI 로봇"', 
+    title: '변동성 장세 속 배당 ETF로 자금 유입 가속화', 
     url: 'https://news.naver.com', 
     source: '머니투데이',
-    summary: '개인 투자자들 사이에서 매월 분배금을 받을 수 있는 월배당 ETF와 AI·로봇 산업 성장에 투자하는 테마형 ETF가 최고의 인기 투자처로 꼽히고 있습니다.'
+    summary: '시장의 불확실성이 커지면서 안정적인 배당 수익을 기대할 수 있는 고배당 및 월배당 ETF로의 자금 쏠림 현상이 나타나고 있습니다.'
   }
 ];
 
@@ -156,24 +157,26 @@ async function init() {
 
 async function initGlobalIndices() {
   await fetchGlobalIndices();
-  // Refresh every 1 minute
+  // 1분마다 갱신
   if (window.indexInterval) clearInterval(window.indexInterval);
   window.indexInterval = setInterval(fetchGlobalIndices, 60000);
 }
 
 async function fetchGlobalIndices() {
   try {
-    // 1. Fetch KOSPI, KOSDAQ from Naver Finance Polling API
+    // 1. 네이버 증권 실시간 API 호출 (프록시 사용)
     const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ`;
-    const naverProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}`;
     
-    const naverRes = await fetch(naverProxyUrl);
+    const naverRes = await fetch(proxyUrl);
     const naverData = await naverRes.json();
+    
     if (naverData && naverData.contents) {
       const naverContents = JSON.parse(naverData.contents);
       if (naverContents && naverContents.result && naverContents.result.areas) {
-        const kospiData = naverContents.result.areas[0].datas.find(d => d.cd === 'KOSPI');
-        const kosdaqData = naverContents.result.areas[0].datas.find(d => d.cd === 'KOSDAQ');
+        const datas = naverContents.result.areas[0].datas;
+        const kospiData = datas.find(d => d.cd === 'KOSPI');
+        const kosdaqData = datas.find(d => d.cd === 'KOSDAQ');
         
         if (kospiData) {
           const item = GLOBAL_MARKETS.find(m => m.name === 'KOSPI');
@@ -192,7 +195,7 @@ async function fetchGlobalIndices() {
       }
     }
 
-    // 2. Fetch other Global Indices (Yahoo Finance)
+    // 2. 해외 지수 데이터 (Yahoo Finance 기반)
     const otherMarkets = GLOBAL_MARKETS.filter(m => !['KOSPI', 'KOSDAQ'].includes(m.name));
     const otherSymbols = otherMarkets.map(m => m.symbol).join(',');
     const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}`;
@@ -215,7 +218,7 @@ async function fetchGlobalIndices() {
       }
     }
   } catch (error) {
-    console.warn('Failed to fetch real-time indices, using simulation:', error);
+    console.warn('실시간 데이터 연동 실패, 기본 데이터 유지:', error);
   }
   renderGlobalIndices();
 }
@@ -224,7 +227,6 @@ function renderGlobalIndices() {
   const ticker = document.getElementById('index-ticker');
   if (!ticker) return;
   
-  // 티커 효과를 위해 데이터를 두 번 반복
   const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
   const sourceText = state.lang === 'ko' ? '출처: 네이버 증권' : 'Source: Naver Finance';
 
@@ -251,8 +253,7 @@ function initTrendingNews() {
   let currentIdx = 0;
 
   const renderNews = () => {
-    newsContainer.innerHTML = ''; // 기존 내용 삭제
-    
+    newsContainer.innerHTML = '';
     TRENDING_NEWS.forEach((news, i) => {
       const item = document.createElement('div');
       item.className = `news-item ${i === 0 ? 'active' : ''}`;
@@ -262,12 +263,7 @@ function initTrendingNews() {
         <span class="news-title">${news.title}</span>
         <span class="news-source">${news.source}</span>
       `;
-      
-      // 기사 클릭 시 해당 뉴스 메인(또는 원문)으로 직접 이동하도록 수정
-      item.addEventListener('click', () => {
-        window.open(news.url, '_blank');
-      });
-      
+      item.addEventListener('click', () => { window.open(news.url, '_blank'); });
       newsContainer.appendChild(item);
     });
   };
@@ -293,18 +289,14 @@ function initTrendingNews() {
 const openNewsModal = (news) => {
   const modal = document.getElementById('news-modal');
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
-  
   document.getElementById('modal-news-cat').textContent = tCats[news.cat] || news.cat;
   document.getElementById('modal-news-title').textContent = news.title;
   document.getElementById('modal-news-summary').textContent = news.summary;
   document.getElementById('modal-news-source').textContent = news.source;
-  
   const urlText = document.getElementById('modal-news-url-text');
   if (urlText) urlText.textContent = news.url;
-  
   const urlBtn = document.getElementById('modal-news-url');
   if (urlBtn) urlBtn.href = news.url;
-  
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 };
@@ -315,7 +307,6 @@ const closeNewsModal = () => {
   document.body.style.overflow = '';
 };
 
-// 실시간 데이터 시뮬레이션을 위한 수치 변동 함수
 function fluctuate(val, range = 0.5) {
   const change = (Math.random() * 2 - 1) * range;
   return parseFloat((val + change).toFixed(2));
@@ -332,17 +323,14 @@ function fluctuateAllData() {
       '3m': fluctuate(item['3m'], 0.1),
       '6m': fluctuate(item['6m'], 0.1),
       '1y': fluctuate(item['1y'], 0.1),
-      aum: Math.floor(item.aum * (1 + (Math.random() * 0.002 - 0.001))) // 시총 미세 변동
+      aum: Math.floor(item.aum * (1 + (Math.random() * 0.002 - 0.001)))
     }));
   });
 }
 
 function updateDashboard() {
   if (!etfData || !etfData.domestic) return;
-  
-  // 클릭/업데이트 시마다 실시간 느낌을 주기 위해 미세 변동 적용
   fluctuateAllData();
-  
   applyTranslations();
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
@@ -386,34 +374,20 @@ function updateLastUpdateTime() {
 function getFilteredAndSortedData() {
   if (!etfData[state.market]) return [];
   let data = [...etfData[state.market]];
-  
-  // 카테고리 필터링
-  if (state.category !== '전체') {
-      data = data.filter(item => item.category === state.category);
-  }
-
-  // 검색어 필터링
+  if (state.category !== '전체') { data = data.filter(item => item.category === state.category); }
   if (state.searchQuery) {
     const query = state.searchQuery.toLowerCase();
     data = data.filter(item => item.name.toLowerCase().includes(query));
   }
-
-  // 정렬 로직 (즐겨찾기 우선 + 시가총액/선택 필드)
   data.sort((a, b) => {
     const aFav = state.watchlist.has(a.name) ? 1 : 0;
     const bFav = state.watchlist.has(b.name) ? 1 : 0;
     if (aFav !== bFav) return bFav - aFav;
-
     let valA = a[state.sortField] || 0;
     let valB = b[state.sortField] || 0;
-    
-    if (state.sortOrder === 'asc') {
-        return valA > valB ? 1 : -1;
-    } else {
-        return valA < valB ? 1 : -1;
-    }
+    if (state.sortOrder === 'asc') return valA > valB ? 1 : -1;
+    else return valA < valB ? 1 : -1;
   });
-
   return data;
 }
 
@@ -427,11 +401,9 @@ function renderSummary(data) {
   const topGainer = [...data].sort((a, b) => b['1y'] - a['1y'])[0];
   const topAum = [...data].sort((a, b) => b.aum - a.aum)[0];
   const avgGrowth = (data.reduce((acc, curr) => acc + curr.growth, 0) / data.length).toFixed(1);
-
   document.getElementById('top-gainer-val').textContent = `${topGainer['1y']}%`;
   document.getElementById('top-gainer-name').textContent = topGainer.name;
   document.getElementById('avg-growth-val').textContent = `${avgGrowth}%`;
-  
   const unit = TRANSLATIONS[state.lang][state.market === 'domestic' ? 'unit-aum-kr' : 'unit-aum-us'];
   document.getElementById('top-div-val').textContent = `${topAum.aum.toLocaleString()}${unit}`;
   document.getElementById('top-div-name').textContent = topAum.name;
@@ -443,12 +415,10 @@ function renderTable(data) {
   const isDom = state.market === 'domestic';
   const divSign = isDom ? '₩' : '$';
   const unit = TRANSLATIONS[state.lang][isDom ? 'unit-aum-kr' : 'unit-aum-us'];
-
   if (!data || data.length === 0) {
     etfList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">검색 결과가 없습니다.</td></tr>';
     return;
   }
-
   etfList.innerHTML = data.map(etf => {
     return `
     <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
@@ -481,17 +451,11 @@ function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
   if (!categoryPills) return;
   const tCats = TRANSLATIONS[state.lang].categories;
-
-  // 미국 시장일 경우 '코스닥' 제외
   let categories = NAVER_CATEGORIES;
   if (state.market === 'us') {
     categories = NAVER_CATEGORIES.filter(c => c !== '코스닥');
-    // 만약 현재 선택된 카테고리가 '코스닥'인데 시장을 미국으로 바꿨다면 '전체'로 초기화
-    if (state.category === '코스닥') {
-      state.category = '전체';
-    }
+    if (state.category === '코스닥') { state.category = '전체'; }
   }
-
   categoryPills.innerHTML = categories.map(cat => `
     <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${tCats[cat] || cat}</button>
   `).join('');
@@ -504,26 +468,19 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
-  // 모달 닫기 이벤트
   const modal = document.getElementById('news-modal');
   const closeBtn = document.getElementById('close-modal');
   if (closeBtn) closeBtn.addEventListener('click', closeNewsModal);
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeNewsModal();
-    });
-  }
-
+  if (modal) { modal.addEventListener('click', (e) => { if (e.target === modal) closeNewsModal(); }); }
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.lang = btn.dataset.lang;
-      initTrendingNews(); // Update news tags
+      initTrendingNews();
       updateDashboard();
     });
   });
-
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -533,25 +490,10 @@ function setupEventListeners() {
       updateDashboard();
     });
   });
-
   const categoryPills = document.getElementById('category-pills');
-  if (categoryPills) {
-    categoryPills.addEventListener('click', (e) => {
-      if (e.target.classList.contains('pill')) {
-        state.category = e.target.dataset.category;
-        updateDashboard();
-      }
-    });
-  }
-
+  if (categoryPills) { categoryPills.addEventListener('click', (e) => { if (e.target.classList.contains('pill')) { state.category = e.target.dataset.category; updateDashboard(); } }); }
   const searchInput = document.getElementById('etf-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      state.searchQuery = e.target.value;
-      updateDashboard();
-    });
-  }
-
+  if (searchInput) { searchInput.addEventListener('input', (e) => { state.searchQuery = e.target.value; updateDashboard(); }); }
   document.querySelectorAll('th.sortable').forEach(th => {
     th.addEventListener('click', () => {
       const field = th.dataset.sort;
@@ -561,5 +503,4 @@ function setupEventListeners() {
     });
   });
 }
-
 document.addEventListener('DOMContentLoaded', init);

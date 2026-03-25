@@ -4,9 +4,40 @@
     "ignore": [
       "firebase-debug.log",
       ".idx/**",
-      "**/.*"
+      "**/.*",
+      "README.md",
+      "blueprint.md",
+      "GEMINI.md"
+    ],
+    "headers": [
+      {
+        "source": "ads.txt",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "robots.txt",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          }
+        ]
+      }
     ],
     "rewrites": [
+      {
+        "source": "!/@(ads.txt|robots.txt|index.html|style.css|main.js|data.json|*.png|*.jpg|*.svg|*.ico|*.html)",
+        "destination": "/index.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"

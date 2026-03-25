@@ -2,11 +2,12 @@
 let etfData = {};
 let benchmarks = {};
 let lastUpdateStr = '';
+let indexFetchTime = '';
 
 let state = {
-  market: 'domestic', // 'domestic' or 'us'
+  market: 'domestic',
   category: '전체',
-  sortField: 'aum', // 시가총액(AUM) 기준 정렬
+  sortField: 'aum',
   sortOrder: 'desc',
   searchQuery: '',
   lang: 'ko',
@@ -78,99 +79,66 @@ const TRANSLATIONS = {
   }
 };
 
-// 네이버 ETF 스타일 카테고리 (11개)
-const NAVER_CATEGORIES = [
-  '전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'
-];
+const NAVER_CATEGORIES = ['전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'];
 
-// 금일 장마감 기준(2026-03-19) 데이터로 업데이트
-let GLOBAL_MARKETS = [
-  { name: 'KOSPI', symbol: 'KOSPI', val: 5763.22, change: -2.73 },
-  { name: 'KOSDAQ', symbol: 'KOSDAQ', val: 1143.48, change: -1.79 },
-  { name: 'S&P 500', symbol: '^GSPC', val: 5120.34, change: 0.85 },
-  { name: 'NASDAQ', symbol: '^IXIC', val: 16245.12, change: 1.15 },
-  { name: 'Dow Jones', symbol: '^DJI', val: 39120.45, change: 0.65 },
-  { name: 'Nikkei 225', symbol: '^N225', val: 38520.12, change: 1.45 },
-  { name: 'FTSE 100', symbol: '^FTSE', val: 7820.45, change: 0.32 },
-  { name: 'DAX', symbol: '^GDAXI', val: 17850.32, change: 0.54 }
+// 캐시된 데이터 로드 또는 기본값
+let GLOBAL_MARKETS = JSON.parse(localStorage.getItem('cached-indices')) || [
+  { name: 'KOSPI', symbol: 'KOSPI', val: 0, change: 0 },
+  { name: 'KOSDAQ', symbol: 'KOSDAQ', val: 0, change: 0 },
+  { name: 'S&P 500', symbol: '^GSPC', val: 0, change: 0 },
+  { name: 'NASDAQ', symbol: '^IXIC', val: 0, change: 0 },
+  { name: 'Dow Jones', symbol: '^DJI', val: 0, change: 0 },
+  { name: 'Nikkei 225', symbol: '^N225', val: 0, change: 0 },
+  { name: 'FTSE 100', symbol: '^FTSE', val: 0, change: 0 },
+  { name: 'DAX', symbol: '^GDAXI', val: 0, change: 0 }
 ];
+indexFetchTime = localStorage.getItem('cached-index-time') || '';
 
 const TRENDING_NEWS = [
-  { 
-    cat: '증시', 
-    title: '중동 긴장 고조에 코스피 5,763선으로 급락 마감', 
-    url: 'https://news.naver.com', 
-    source: '한국경제',
-    summary: '중동 지역의 지정학적 리스크 확산과 국제 유가 급등 영향으로 국내 증시가 큰 폭의 하락세를 보였습니다. 인플레이션 우려가 다시 고개를 들고 있습니다.'
-  },
-  { 
-    cat: '경제', 
-    title: '환율 1,500원 돌파... 17년 만에 최고치 기록', 
-    url: 'https://news.naver.com', 
-    source: '연합뉴스',
-    summary: '달러 강세와 안전자산 선호 현상이 겹치면서 원/달러 환율이 1,500원을 넘어섰습니다. 이는 금융위기 이후 가장 높은 수준입니다.'
-  },
-  { 
-    cat: '산업', 
-    title: '반도체·자동차주 일제히 하락... 2차전지는 선방', 
-    url: 'https://news.naver.com', 
-    source: '이데일리',
-    summary: '코스피 대형주들이 시장 급락의 직격탄을 맞은 가운데, 일부 테마주와 2차전지 관련주들은 상대적으로 낮은 하락폭을 기록하며 버텼습니다.'
-  },
-  { 
-    cat: '속보', 
-    title: '정부, 시장 변동성 확대에 긴급 시장상황 점검회의', 
-    url: 'https://news.naver.com', 
-    source: '서울경제',
-    summary: '금융당국은 최근 증시 급락과 환율 급등에 대응하기 위해 긴급 회의를 소집하고 시장 안정화 대책을 논의하기로 했습니다.'
-  },
-  { 
-    cat: '분석', 
-    title: '변동성 장세 속 배당 ETF로 자금 유입 가속화', 
-    url: 'https://news.naver.com', 
-    source: '머니투데이',
-    summary: '시장의 불확실성이 커지면서 안정적인 배당 수익을 기대할 수 있는 고배당 및 월배당 ETF로의 자금 쏠림 현상이 나타나고 있습니다.'
-  }
+  { cat: '증시', title: '중동 긴장 고조에 코스피 하락세 지속', url: 'https://news.naver.com', source: '한국경제', summary: '중동 리스크 확산으로 증시 변동성이 커지고 있습니다.' },
+  { cat: '경제', title: '환율 변동성 확대... 시장 긴장감 고조', url: 'https://news.naver.com', source: '연합뉴스', summary: '달러 강세로 원/달러 환율이 높은 수준을 유지 중입니다.' },
+  { cat: '산업', title: '반도체·자동차주 시장 주도권 쟁탈전', url: 'https://news.naver.com', source: '이데일리', summary: '핵심 산업군의 성과가 시장의 향방을 결정하고 있습니다.' },
+  { cat: '속보', title: '정부, 시장 변동성 대응 모니터링 강화', url: 'https://news.naver.com', source: '서울경제', summary: '금융당국은 필요 시 시장 안정화 조치를 검토할 계획입니다.' },
+  { cat: '분석', title: '방어적 성격의 배당 ETF로 자금 유입 지속', url: 'https://news.naver.com', source: '머니투데이', summary: '안정적인 인컴 수익을 찾는 투자자들이 늘고 있습니다.' }
 ];
 
 async function init() {
+  // 1. 캐시된 데이터로 즉시 렌더링 (체감 속도 최적화)
+  renderGlobalIndices();
+  initTrendingNews();
+  setupEventListeners();
+
   try {
-    const response = await fetch('data.json');
-    if (!response.ok) throw new Error('data.json loading failed');
-    const data = await response.json();
-    etfData = data.etfData;
-    benchmarks = data.benchmarks;
-    lastUpdateStr = data.lastUpdate;
-    
-    // 초기 로드 시 실시간 데이터처럼 약간의 변동성 부여
-    fluctuateAllData();
-    
-    await initGlobalIndices();
-    initTrendingNews();
+    // 2. 병렬 로딩: ETF 데이터와 실시간 지수를 동시에 가져옴
+    const [dataRes, _] = await Promise.all([
+      fetch('data.json').then(res => res.json()),
+      fetchGlobalIndices()
+    ]);
+
+    etfData = dataRes.etfData;
+    benchmarks = dataRes.benchmarks;
+    lastUpdateStr = dataRes.lastUpdate;
     
     updateDashboard();
-    setupEventListeners();
   } catch (error) {
-    console.error('Failed to load ETF data:', error);
+    console.error('Initialization failed:', error);
   }
-}
 
-async function initGlobalIndices() {
-  await fetchGlobalIndices();
-  // 1분마다 갱신
+  // 3. 주기적 업데이트 설정
   if (window.indexInterval) clearInterval(window.indexInterval);
-  window.indexInterval = setInterval(fetchGlobalIndices, 60000);
+  window.indexInterval = setInterval(fetchGlobalIndices, 300000);
 }
 
 async function fetchGlobalIndices() {
   try {
-    // 1. 네이버 증권 실시간 API 호출 (프록시 사용)
     const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ`;
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}`;
     
     const naverRes = await fetch(proxyUrl);
     const naverData = await naverRes.json();
     
+    let updated = false;
+
     if (naverData && naverData.contents) {
       const naverContents = JSON.parse(naverData.contents);
       if (naverContents && naverContents.result && naverContents.result.areas) {
@@ -183,6 +151,7 @@ async function fetchGlobalIndices() {
           if (item) {
             item.val = parseFloat(kospiData.nv.replace(/,/g, ''));
             item.change = parseFloat(kospiData.cr);
+            updated = true;
           }
         }
         if (kosdaqData) {
@@ -190,12 +159,12 @@ async function fetchGlobalIndices() {
           if (item) {
             item.val = parseFloat(kosdaqData.nv.replace(/,/g, ''));
             item.change = parseFloat(kosdaqData.cr);
+            updated = true;
           }
         }
       }
     }
 
-    // 2. 해외 지수 데이터 (Yahoo Finance 기반)
     const otherMarkets = GLOBAL_MARKETS.filter(m => !['KOSPI', 'KOSDAQ'].includes(m.name));
     const otherSymbols = otherMarkets.map(m => m.symbol).join(',');
     const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}`;
@@ -213,14 +182,23 @@ async function fetchGlobalIndices() {
           if (quote) {
             market.val = quote.regularMarketPrice !== undefined ? quote.regularMarketPrice : market.val;
             market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
+            updated = true;
           }
         });
       }
     }
+
+    if (updated) {
+      const now = new Date();
+      indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      // 로컬 스토리지에 캐시 저장
+      localStorage.setItem('cached-indices', JSON.stringify(GLOBAL_MARKETS));
+      localStorage.setItem('cached-index-time', indexFetchTime);
+      renderGlobalIndices();
+    }
   } catch (error) {
-    console.warn('실시간 데이터 연동 실패, 기본 데이터 유지:', error);
+    console.warn('Live data fetch failed:', error);
   }
-  renderGlobalIndices();
 }
 
 function renderGlobalIndices() {
@@ -228,11 +206,14 @@ function renderGlobalIndices() {
   if (!ticker) return;
   
   const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
-  const sourceText = state.lang === 'ko' ? '출처: 네이버 증권' : 'Source: Naver Finance';
+  const isKo = state.lang === 'ko';
+  const sourceText = isKo ? '출처: 네이버/야후 (15분 지연)' : 'Source: Naver/Yahoo (15m delay)';
+  const updateText = indexFetchTime ? `[${indexFetchTime} ${isKo ? '갱신' : 'Refreshed'}]` : '';
 
   ticker.innerHTML = `
-    <div class="ticker-source-tag">${sourceText}</div>
+    <div class="ticker-source-tag">${sourceText} ${updateText}</div>
     ${items.map(idx => {
+      if (idx.val === 0) return `<div class="index-item"><span class="index-name">${idx.name}</span><span class="index-val">...</span></div>`;
       const isPos = idx.change >= 0;
       return `
         <div class="index-item">
@@ -249,6 +230,7 @@ function renderGlobalIndices() {
 
 function initTrendingNews() {
   const newsContainer = document.getElementById('trending-news');
+  if (!newsContainer) return;
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
 
@@ -258,11 +240,7 @@ function initTrendingNews() {
       const item = document.createElement('div');
       item.className = `news-item ${i === 0 ? 'active' : ''}`;
       item.style.transform = `translateY(${i * 100}%)`;
-      item.innerHTML = `
-        <span class="news-category">[${tCats[news.cat] || news.cat}]</span>
-        <span class="news-title">${news.title}</span>
-        <span class="news-source">${news.source}</span>
-      `;
+      item.innerHTML = `<span class="news-category">[${tCats[news.cat] || news.cat}]</span> <span class="news-title">${news.title}</span>`;
       item.addEventListener('click', () => { window.open(news.url, '_blank'); });
       newsContainer.appendChild(item);
     });
@@ -286,51 +264,8 @@ function initTrendingNews() {
   window.newsInterval = setInterval(rotateNews, 4000);
 }
 
-const openNewsModal = (news) => {
-  const modal = document.getElementById('news-modal');
-  const tCats = TRANSLATIONS[state.lang]['news-cats'];
-  document.getElementById('modal-news-cat').textContent = tCats[news.cat] || news.cat;
-  document.getElementById('modal-news-title').textContent = news.title;
-  document.getElementById('modal-news-summary').textContent = news.summary;
-  document.getElementById('modal-news-source').textContent = news.source;
-  const urlText = document.getElementById('modal-news-url-text');
-  if (urlText) urlText.textContent = news.url;
-  const urlBtn = document.getElementById('modal-news-url');
-  if (urlBtn) urlBtn.href = news.url;
-  modal.classList.add('active');
-  document.body.style.overflow = 'hidden';
-};
-
-const closeNewsModal = () => {
-  const modal = document.getElementById('news-modal');
-  modal.classList.remove('active');
-  document.body.style.overflow = '';
-};
-
-function fluctuate(val, range = 0.5) {
-  const change = (Math.random() * 2 - 1) * range;
-  return parseFloat((val + change).toFixed(2));
-}
-
-function fluctuateAllData() {
-  const markets = ['domestic', 'us'];
-  markets.forEach(m => {
-    if (!etfData[m]) return;
-    etfData[m] = etfData[m].map(item => ({
-      ...item,
-      growth: fluctuate(item.growth, 0.2),
-      '1m': fluctuate(item['1m'], 0.1),
-      '3m': fluctuate(item['3m'], 0.1),
-      '6m': fluctuate(item['6m'], 0.1),
-      '1y': fluctuate(item['1y'], 0.1),
-      aum: Math.floor(item.aum * (1 + (Math.random() * 0.002 - 0.001)))
-    }));
-  });
-}
-
 function updateDashboard() {
   if (!etfData || !etfData.domestic) return;
-  fluctuateAllData();
   applyTranslations();
   const filteredData = getFilteredAndSortedData();
   renderSummary(filteredData);
@@ -345,29 +280,18 @@ function applyTranslations() {
     const el = document.getElementById(key);
     if (el) {
       if (key === 'etf-search-placeholder') {
-        document.getElementById('etf-search').placeholder = t[key];
-      } else {
-        el.textContent = t[key];
-      }
+        const input = document.getElementById('etf-search');
+        if (input) input.placeholder = t[key];
+      } else { el.textContent = t[key]; }
     }
   });
-}
-
-function fluctuateGlobalIndices() {
-  GLOBAL_MARKETS.forEach(idx => {
-    idx.val = fluctuate(idx.val, idx.val * 0.001);
-    idx.change = fluctuate(idx.change, 0.05);
-  });
-  renderGlobalIndices();
 }
 
 function updateLastUpdateTime() {
   const lastUpdateEl = document.getElementById('last-update-time');
   if (lastUpdateEl) {
-    const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    const prefix = state.lang === 'ko' ? '실시간 업데이트' : 'Live Update';
-    lastUpdateEl.textContent = `${prefix}: ${timeStr}`;
+    const prefix = state.lang === 'ko' ? '데이터 기준' : 'Data as of';
+    lastUpdateEl.textContent = `${prefix}: ${lastUpdateStr || '---'}`;
   }
 }
 
@@ -385,19 +309,13 @@ function getFilteredAndSortedData() {
     if (aFav !== bFav) return bFav - aFav;
     let valA = a[state.sortField] || 0;
     let valB = b[state.sortField] || 0;
-    if (state.sortOrder === 'asc') return valA > valB ? 1 : -1;
-    else return valA < valB ? 1 : -1;
+    return state.sortOrder === 'asc' ? (valA - valB) : (valB - valA);
   });
   return data;
 }
 
 function renderSummary(data) {
-  if (!data || data.length === 0) {
-      document.getElementById('top-gainer-val').textContent = '-';
-      document.getElementById('avg-growth-val').textContent = '-';
-      document.getElementById('top-div-val').textContent = '-';
-      return;
-  }
+  if (!data || data.length === 0) return;
   const topGainer = [...data].sort((a, b) => b['1y'] - a['1y'])[0];
   const topAum = [...data].sort((a, b) => b.aum - a.aum)[0];
   const avgGrowth = (data.reduce((acc, curr) => acc + curr.growth, 0) / data.length).toFixed(1);
@@ -413,53 +331,32 @@ function renderTable(data) {
   const etfList = document.getElementById('etf-list');
   if (!etfList) return;
   const isDom = state.market === 'domestic';
-  const divSign = isDom ? '₩' : '$';
   const unit = TRANSLATIONS[state.lang][isDom ? 'unit-aum-kr' : 'unit-aum-us'];
-  if (!data || data.length === 0) {
-    etfList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">검색 결과가 없습니다.</td></tr>';
+  if (data.length === 0) {
+    etfList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">No results found.</td></tr>';
     return;
   }
-  etfList.innerHTML = data.map(etf => {
-    return `
+  etfList.innerHTML = data.map(etf => `
     <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
-      <td class="col-fav ${state.watchlist.has(etf.name) ? 'active' : ''}" onclick="toggleWatchlist('${etf.name}')">
-        ${state.watchlist.has(etf.name) ? '★' : '☆'}
-      </td>
-      <td>
-        <div class="etf-name">
-          ${etf.name}
-          ${isDom ? '<span class="market-tag tag-kr">KR</span>' : '<span class="market-tag tag-us">US</span>'}
-        </div>
-      </td>
-      <td>
-        <div class="aum-text">${etf.aum.toLocaleString()}${unit}</div>
-        <div class="dividend-row">
-            <span class="div-amount">${etf.dividend > 0 ? divSign + etf.dividend.toLocaleString() : '-'}</span>
-            <span class="div-cycle">(${etf.divCycle})</span>
-        </div>
-      </td>
+      <td class="col-fav ${state.watchlist.has(etf.name) ? 'active' : ''}" onclick="toggleWatchlist('${etf.name}')">${state.watchlist.has(etf.name) ? '★' : '☆'}</td>
+      <td><div class="etf-name">${etf.name} <span class="market-tag tag-${isDom?'kr':'us'}">${isDom?'KR':'US'}</span></div></td>
+      <td><div class="aum-text">${etf.aum.toLocaleString()}${unit}</div><div class="dividend-row"><span class="div-amount">${etf.dividend > 0 ? (isDom?'₩':'$')+etf.dividend.toLocaleString() : '-'}</span> <span class="div-cycle">(${etf.divCycle})</span></div></td>
       <td class="${etf.growth >= 0 ? 'val-positive' : 'val-negative'}">${etf.growth >= 0 ? '+' : ''}${etf.growth}%</td>
       <td class="${etf['1m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1m'] >= 0 ? '+' : ''}${etf['1m']}%</td>
       <td class="${etf['3m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['3m'] >= 0 ? '+' : ''}${etf['3m']}%</td>
       <td class="${etf['6m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['6m'] >= 0 ? '+' : ''}${etf['6m']}%</td>
       <td class="${etf['1y'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1y'] >= 0 ? '+' : ''}${etf['1y']}%</td>
-    </tr>
-  `}).join('');
+    </tr>`).join('');
 }
 
 function renderCategories() {
   const categoryPills = document.getElementById('category-pills');
   if (!categoryPills) return;
   const tCats = TRANSLATIONS[state.lang].categories;
-  let categories = NAVER_CATEGORIES;
-  if (state.market === 'us') {
-    categories = NAVER_CATEGORIES.filter(c => c !== '코스닥');
-    if (state.category === '코스닥') { state.category = '전체'; }
-  }
-  categoryPills.innerHTML = categories.map(cat => `
-    <button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${tCats[cat] || cat}</button>
-  `).join('');
+  let categories = state.market === 'us' ? NAVER_CATEGORIES.filter(c => c !== '코스닥') : NAVER_CATEGORIES;
+  categoryPills.innerHTML = categories.map(cat => `<button class="pill ${state.category === cat ? 'active' : ''}" data-category="${cat}">${tCats[cat] || cat}</button>`).join('');
 }
+
 window.toggleWatchlist = (name) => {
   if (state.watchlist.has(name)) state.watchlist.delete(name);
   else state.watchlist.add(name);
@@ -468,39 +365,21 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
-  const modal = document.getElementById('news-modal');
-  const closeBtn = document.getElementById('close-modal');
-  if (closeBtn) closeBtn.addEventListener('click', closeNewsModal);
-  if (modal) { modal.addEventListener('click', (e) => { if (e.target === modal) closeNewsModal(); }); }
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.lang = btn.dataset.lang;
-      initTrendingNews();
-      updateDashboard();
-    });
-  });
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.market = btn.dataset.market;
-      state.category = '전체';
-      updateDashboard();
-    });
-  });
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); state.lang = btn.dataset.lang; updateDashboard();
+  }));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); state.market = btn.dataset.market; state.category = '전체'; updateDashboard();
+  }));
   const categoryPills = document.getElementById('category-pills');
-  if (categoryPills) { categoryPills.addEventListener('click', (e) => { if (e.target.classList.contains('pill')) { state.category = e.target.dataset.category; updateDashboard(); } }); }
+  if (categoryPills) categoryPills.addEventListener('click', (e) => { if (e.target.classList.contains('pill')) { state.category = e.target.dataset.category; updateDashboard(); } });
   const searchInput = document.getElementById('etf-search');
-  if (searchInput) { searchInput.addEventListener('input', (e) => { state.searchQuery = e.target.value; updateDashboard(); }); }
-  document.querySelectorAll('th.sortable').forEach(th => {
-    th.addEventListener('click', () => {
-      const field = th.dataset.sort;
-      state.sortOrder = (state.sortField === field && state.sortOrder === 'desc') ? 'asc' : 'desc';
-      state.sortField = field;
-      updateDashboard();
-    });
-  });
+  if (searchInput) searchInput.addEventListener('input', (e) => { state.searchQuery = e.target.value; updateDashboard(); });
+  document.querySelectorAll('th.sortable').forEach(th => th.addEventListener('click', () => {
+    state.sortOrder = (state.sortField === th.dataset.sort && state.sortOrder === 'desc') ? 'asc' : 'desc';
+    state.sortField = th.dataset.sort; updateDashboard();
+  }));
 }
 document.addEventListener('DOMContentLoaded', init);

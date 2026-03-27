@@ -81,7 +81,10 @@ const TRANSLATIONS = {
 const NAVER_CATEGORIES = ['전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'];
 
 let LIVE_NEWS = [
-  { cat: '속보', title: '실시간 시장 뉴스를 불러오는 중입니다...', url: '#' }
+  { cat: '증시', title: '금리 동결 전망에 기술주 중심 반등세 지속', url: 'https://finance.naver.com' },
+  { cat: '경제', title: '환율 변동성 확대... 수출입 기업 대응 부심', url: 'https://finance.naver.com' },
+  { cat: '산업', title: 'AI 반도체 수요 폭증, 관련 기업 실적 개선 기대', url: 'https://finance.naver.com' },
+  { cat: '속보', title: '주요 지수 최고치 경신 후 혼조세 마감', url: 'https://finance.naver.com' }
 ];
 
 function getCurrentFormattedTime() {
@@ -96,10 +99,10 @@ function getCurrentFormattedTime() {
 
 async function init() {
   lastUpdateStr = getCurrentFormattedTime();
-  updateMagazineDates(); // 매거진 날짜 오늘 날짜로 갱신
+  updateMagazineDates();
 
-  initTrendingNews(); // 초기 로딩 표시
-  fetchRealTimeNews(); // 실제 뉴스 가져오기 시작
+  initTrendingNews(); // 우선 기본/샘플 뉴스로 노출
+  fetchRealTimeNews(); // 그 후 실제 뉴스 비동기 로딩
   
   setupEventListeners();
 
@@ -125,35 +128,45 @@ async function init() {
     .catch(error => console.error('ETF data fetch failed:', error));
 }
 
-// 구글 뉴스 RSS를 사용하여 실제 주식/경제 뉴스를 가져옴
+// 구글 뉴스 RSS Fetch 로직 강화
 async function fetchRealTimeNews() {
   try {
-    const rssUrl = 'https://news.google.com/rss/search?q=ETF+주식+증시&hl=ko&gl=KR&ceid=KR:ko';
+    // 타임스탬프를 추가하여 프록시 캐시 방지
+    const rssUrl = `https://news.google.com/rss/search?q=ETF+주식+증시&hl=ko&gl=KR&ceid=KR:ko&t=${Date.now()}`;
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
     
     const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
     const data = await response.json();
+    if (!data.contents) throw new Error('Empty news contents');
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(data.contents, "text/xml");
     const items = xmlDoc.querySelectorAll("item");
     
+    if (items.length === 0) throw new Error('No news items found');
+
     const newsList = [];
     items.forEach((item, index) => {
-      if (index < 10) { // 최근 10개만 사용
+      if (index < 10) {
+        const title = item.querySelector("title")?.textContent || "뉴스를 불러올 수 없습니다.";
+        const link = item.querySelector("link")?.textContent || "#";
         newsList.push({
           cat: index % 2 === 0 ? '증시' : '경제',
-          title: item.querySelector("title").textContent.split(' - ')[0], // 언론사 명 제외
-          url: item.querySelector("link").textContent
+          title: title.split(' - ')[0],
+          url: link
         });
       }
     });
 
     if (newsList.length > 0) {
       LIVE_NEWS = newsList;
-      initTrendingNews(); // 뉴스 티커 다시 렌더링
+      initTrendingNews();
     }
   } catch (error) {
-    console.error('Real-time news fetch failed:', error);
+    console.warn('Real-time news fetch failed, using fallback:', error);
+    // 실패 시 기본 샘플 뉴스 유지 (이미 렌더링됨)
   }
 }
 
@@ -162,7 +175,7 @@ function updateMagazineDates() {
   const dateElements = document.querySelectorAll('.magazine-footer .date');
   dateElements.forEach((el, index) => {
     const d = new Date(now);
-    d.setDate(now.getDate() - index); // 최신글부터 오늘, 어제, 그저께 순으로
+    d.setDate(now.getDate() - index);
     const y = d.getFullYear();
     const m = (d.getMonth() + 1).toString().padStart(2, '0');
     const day = d.getDate().toString().padStart(2, '0');
@@ -176,6 +189,7 @@ function initTrendingNews() {
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
 
+  // 뉴스 아이템 렌더링
   const renderNews = () => {
     newsContainer.innerHTML = '';
     LIVE_NEWS.forEach((news, i) => {
@@ -188,6 +202,7 @@ function initTrendingNews() {
     });
   };
 
+  // 회전 애니메이션
   const rotateNews = () => {
     const items = newsContainer.querySelectorAll('.news-item');
     if (items.length === 0) return;

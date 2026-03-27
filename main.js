@@ -103,12 +103,12 @@ const TRENDING_NEWS = [
 ];
 
 async function init() {
-  // 1. 즉시 렌더링 (체감 속도 최적화: 캐시된 지수와 뉴스 우선 로드)
+  // 1. 즉시 렌더링 (캐시 데이터 활용)
   renderGlobalIndices();
   initTrendingNews();
   setupEventListeners();
 
-  // 1.1 캐시된 ETF 데이터가 있다면 우선 표시
+  // 1.1 캐시된 ETF 데이터가 있다면 즉시 표시
   const cachedEtfData = localStorage.getItem('cached-etf-data');
   if (cachedEtfData) {
     try {
@@ -117,39 +117,39 @@ async function init() {
       benchmarks = dataRes.benchmarks;
       lastUpdateStr = dataRes.lastUpdate;
       updateDashboard();
-    } catch (e) {
-      console.warn('Cached ETF data parse failed');
-    }
+    } catch (e) { console.warn('Cached ETF data parse failed'); }
   }
 
-  // 2. 비동기 데이터 로딩 (병렬화 및 비차단형 전환)
-  // 2.1 최신 ETF 데이터 로딩 (중요)
-  fetch('data.json')
+  // 2. 비동기 데이터 로딩 (비차단 병렬 처리)
+  // ETF 데이터 로딩
+  fetch('data.json?t=' + Date.now())
     .then(res => res.json())
     .then(dataRes => {
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
       lastUpdateStr = dataRes.lastUpdate;
-      // 최신 데이터를 다시 캐시
       localStorage.setItem('cached-etf-data', JSON.stringify(dataRes));
       updateDashboard();
     })
-    .catch(error => {
-      console.error('ETF data fetch failed:', error);
-    });
+    .catch(error => console.error('ETF data fetch failed:', error));
 
-  // 2.2 실시간 지수 데이터 로딩 (별도 비동기 처리, 메인 화면 렌더링을 방해하지 않음)
-  fetchGlobalIndices().catch(err => console.warn('Global indices fetch failed:', err));
+  // 실시간 지수 로딩 (가장 마지막에 처리하여 메인 컨텐츠 방해 최소화)
+  setTimeout(() => fetchGlobalIndices(), 100);
 
-  // 3. 주기적 업데이트 설정
+  // 3. 주기적 업데이트 설정 (5분)
   if (window.indexInterval) clearInterval(window.indexInterval);
   window.indexInterval = setInterval(fetchGlobalIndices, 300000);
 }
 
 async function fetchGlobalIndices() {
+  const ticker = document.getElementById('index-ticker');
+  if (ticker) ticker.classList.add('loading-indices');
+  
   try {
-    const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}`;
+    // 캐시 방지를 위한 타임스탬프 추가
+    const timestamp = Date.now();
+    const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ&_=${timestamp}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}&_=${timestamp}`;
     
     const naverRes = await fetch(proxyUrl);
     const naverData = await naverRes.json();
@@ -158,7 +158,7 @@ async function fetchGlobalIndices() {
 
     if (naverData && naverData.contents) {
       const naverContents = JSON.parse(naverData.contents);
-      if (naverContents && naverContents.result && naverContents.result.areas) {
+      if (naverContents?.result?.areas) {
         const datas = naverContents.result.areas[0].datas;
         const kospiData = datas.find(d => d.cd === 'KOSPI');
         const kosdaqData = datas.find(d => d.cd === 'KOSDAQ');
@@ -184,20 +184,20 @@ async function fetchGlobalIndices() {
 
     const otherMarkets = GLOBAL_MARKETS.filter(m => !['KOSPI', 'KOSDAQ'].includes(m.name));
     const otherSymbols = otherMarkets.map(m => m.symbol).join(',');
-    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}`;
-    const yahooProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`;
+    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}&_=${timestamp}`;
+    const yahooProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}&_=${timestamp}`;
     
     const yahooRes = await fetch(yahooProxyUrl);
     const yahooData = await yahooRes.json();
-    if (yahooData && yahooData.contents) {
+    if (yahooData?.contents) {
       const yahooContents = JSON.parse(yahooData.contents);
-      if (yahooContents && yahooContents.quoteResponse && yahooContents.quoteResponse.result) {
+      if (yahooContents?.quoteResponse?.result) {
         const quotes = yahooContents.quoteResponse.result;
         GLOBAL_MARKETS.forEach(market => {
           if (['KOSPI', 'KOSDAQ'].includes(market.name)) return;
           const quote = quotes.find(q => q.symbol === market.symbol);
           if (quote) {
-            market.val = quote.regularMarketPrice !== undefined ? quote.regularMarketPrice : market.val;
+            market.val = quote.regularMarketPrice ?? market.val;
             market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
             updated = true;
           }
@@ -207,14 +207,15 @@ async function fetchGlobalIndices() {
 
     if (updated) {
       const now = new Date();
-      indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      // 로컬 스토리지에 캐시 저장
+      indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
       localStorage.setItem('cached-indices', JSON.stringify(GLOBAL_MARKETS));
       localStorage.setItem('cached-index-time', indexFetchTime);
       renderGlobalIndices();
     }
   } catch (error) {
     console.warn('Live data fetch failed:', error);
+  } finally {
+    if (ticker) ticker.classList.remove('loading-indices');
   }
 }
 
@@ -224,8 +225,8 @@ function renderGlobalIndices() {
   
   const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
   const isKo = state.lang === 'ko';
-  const sourceText = isKo ? '출처: 네이버/야후 (15분 지연)' : 'Source: Naver/Yahoo (15m delay)';
-  const updateText = indexFetchTime ? `[${indexFetchTime} ${isKo ? '갱신' : 'Refreshed'}]` : '';
+  const sourceText = isKo ? '실시간 지수 (클릭 시 갱신)' : 'Live Indices (Click to refresh)';
+  const updateText = indexFetchTime ? `[${indexFetchTime}]` : '';
 
   ticker.innerHTML = `
     <div class="ticker-source-tag">${sourceText} ${updateText}</div>
@@ -353,9 +354,13 @@ function renderTable(data) {
     etfList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">No results found.</td></tr>';
     return;
   }
-  etfList.innerHTML = data.map(etf => `
-    <tr class="${state.watchlist.has(etf.name) ? 'is-fav' : ''}">
-      <td class="col-fav ${state.watchlist.has(etf.name) ? 'active' : ''}" onclick="toggleWatchlist('${etf.name}')">${state.watchlist.has(etf.name) ? '★' : '☆'}</td>
+  
+  // 가상 DOM 조각 사용하여 성능 최적화
+  const rows = data.map(etf => {
+    const isFav = state.watchlist.has(etf.name);
+    return `
+    <tr class="${isFav ? 'is-fav' : ''}">
+      <td class="col-fav ${isFav ? 'active' : ''}" onclick="toggleWatchlist('${etf.name}')">${isFav ? '★' : '☆'}</td>
       <td><div class="etf-name">${etf.name} <span class="market-tag tag-${isDom?'kr':'us'}">${isDom?'KR':'US'}</span></div></td>
       <td><div class="aum-text">${etf.aum.toLocaleString()}${unit}</div><div class="dividend-row"><span class="div-amount">${etf.dividend > 0 ? (isDom?'₩':'$')+etf.dividend.toLocaleString() : '-'}</span> <span class="div-cycle">(${etf.divCycle})</span></div></td>
       <td class="${etf.growth >= 0 ? 'val-positive' : 'val-negative'}">${etf.growth >= 0 ? '+' : ''}${etf.growth}%</td>
@@ -363,7 +368,10 @@ function renderTable(data) {
       <td class="${etf['3m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['3m'] >= 0 ? '+' : ''}${etf['3m']}%</td>
       <td class="${etf['6m'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['6m'] >= 0 ? '+' : ''}${etf['6m']}%</td>
       <td class="${etf['1y'] >= 0 ? 'val-positive' : 'val-negative'}">${etf['1y'] >= 0 ? '+' : ''}${etf['1y']}%</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+  
+  etfList.innerHTML = rows;
 }
 
 function renderCategories() {
@@ -382,6 +390,10 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
+  // 지수 바 클릭 시 새로고침 기능 추가
+  const ticker = document.getElementById('index-ticker');
+  if (ticker) ticker.addEventListener('click', () => fetchGlobalIndices());
+
   document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active'); state.lang = btn.dataset.lang; updateDashboard();
@@ -392,8 +404,19 @@ function setupEventListeners() {
   }));
   const categoryPills = document.getElementById('category-pills');
   if (categoryPills) categoryPills.addEventListener('click', (e) => { if (e.target.classList.contains('pill')) { state.category = e.target.dataset.category; updateDashboard(); } });
+  
   const searchInput = document.getElementById('etf-search');
-  if (searchInput) searchInput.addEventListener('input', (e) => { state.searchQuery = e.target.value; updateDashboard(); });
+  if (searchInput) {
+    let debounceTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        state.searchQuery = e.target.value;
+        updateDashboard();
+      }, 150);
+    });
+  }
+  
   document.querySelectorAll('th.sortable').forEach(th => th.addEventListener('click', () => {
     state.sortOrder = (state.sortField === th.dataset.sort && state.sortOrder === 'desc') ? 'asc' : 'desc';
     state.sortField = th.dataset.sort; updateDashboard();

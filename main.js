@@ -2,7 +2,6 @@
 let etfData = {};
 let benchmarks = {};
 let lastUpdateStr = '';
-let indexFetchTime = '';
 
 let state = {
   market: 'domestic',
@@ -81,25 +80,8 @@ const TRANSLATIONS = {
 
 const NAVER_CATEGORIES = ['전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'];
 
-// 캐시된 데이터 로드 또는 기본값
-let GLOBAL_MARKETS = JSON.parse(localStorage.getItem('cached-indices')) || [
-  { name: 'KOSPI', symbol: 'KOSPI', val: 0, change: 0 },
-  { name: 'KOSDAQ', symbol: 'KOSDAQ', val: 0, change: 0 },
-  { name: 'S&P 500', symbol: '^GSPC', val: 0, change: 0 },
-  { name: 'NASDAQ', symbol: '^IXIC', val: 0, change: 0 },
-  { name: 'Dow Jones', symbol: '^DJI', val: 0, change: 0 },
-  { name: 'Nikkei 225', symbol: '^N225', val: 0, change: 0 },
-  { name: 'FTSE 100', symbol: '^FTSE', val: 0, change: 0 },
-  { name: 'DAX', symbol: '^GDAXI', val: 0, change: 0 }
-];
-indexFetchTime = localStorage.getItem('cached-index-time') || '';
-
-const TRENDING_NEWS = [
-  { cat: '증시', title: '중동 긴장 고조에 코스피 하락세 지속', url: 'https://news.naver.com', source: '한국경제', summary: '중동 리스크 확산으로 증시 변동성이 커지고 있습니다.' },
-  { cat: '경제', title: '환율 변동성 확대... 시장 긴장감 고조', url: 'https://news.naver.com', source: '연합뉴스', summary: '달러 강세로 원/달러 환율이 높은 수준을 유지 중입니다.' },
-  { cat: '산업', title: '반도체·자동차주 시장 주도권 쟁탈전', url: 'https://news.naver.com', source: '이데일리', summary: '핵심 산업군의 성과가 시장의 향방을 결정하고 있습니다.' },
-  { cat: '속보', title: '정부, 시장 변동성 대응 모니터링 강화', url: 'https://news.naver.com', source: '서울경제', summary: '금융당국은 필요 시 시장 안정화 조치를 검토할 계획입니다.' },
-  { cat: '분석', title: '방어적 성격의 배당 ETF로 자금 유입 지속', url: 'https://news.naver.com', source: '머니투데이', summary: '안정적인 인컴 수익을 찾는 투자자들이 늘고 있습니다.' }
+let LIVE_NEWS = [
+  { cat: '속보', title: '실시간 시장 뉴스를 불러오는 중입니다...', url: '#' }
 ];
 
 function getCurrentFormattedTime() {
@@ -113,145 +95,79 @@ function getCurrentFormattedTime() {
 }
 
 async function init() {
-  // 현재 접속 시각을 기준으로 업데이트 스트링 초기화
   lastUpdateStr = getCurrentFormattedTime();
+  updateMagazineDates(); // 매거진 날짜 오늘 날짜로 갱신
 
-  // 1. 최우선 순위: 실시간 지수 데이터 로딩 (가장 먼저 시작)
-  fetchGlobalIndices(); 
-
-  // 2. 즉시 UI 렌더링 (캐시된 데이터로 우선 표시하여 로딩 체감 단축)
-  renderGlobalIndices();
-  initTrendingNews();
+  initTrendingNews(); // 초기 로딩 표시
+  fetchRealTimeNews(); // 실제 뉴스 가져오기 시작
+  
   setupEventListeners();
 
-  // 2.1 캐시된 ETF 데이터 표시
   const cachedEtfData = localStorage.getItem('cached-etf-data');
   if (cachedEtfData) {
     try {
       const dataRes = JSON.parse(cachedEtfData);
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
-      // 캐시 데이터의 날짜가 아닌, '현재' 시점을 기준으로 표시하기 위해 덮어쓰지 않음
       updateDashboard();
     } catch (e) { console.warn('Cached ETF data parse failed'); }
   }
 
-  // 3. ETF 상세 데이터 비동기 로딩 (백그라운드 처리)
   fetch('data.json?t=' + Date.now())
     .then(res => res.json())
     .then(dataRes => {
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
-      // 데이터 로드 성공 시 시점 갱신
       lastUpdateStr = getCurrentFormattedTime();
       localStorage.setItem('cached-etf-data', JSON.stringify(dataRes));
       updateDashboard();
     })
     .catch(error => console.error('ETF data fetch failed:', error));
-
-  // 4. 주기적 업데이트 설정 (5분)
-  if (window.indexInterval) clearInterval(window.indexInterval);
-  window.indexInterval = setInterval(fetchGlobalIndices, 300000);
 }
 
-async function fetchGlobalIndices() {
-  const ticker = document.getElementById('index-ticker');
-  if (ticker) ticker.style.opacity = '0.5';
-  
+// 구글 뉴스 RSS를 사용하여 실제 주식/경제 뉴스를 가져옴
+async function fetchRealTimeNews() {
   try {
-    const timestamp = Date.now();
-    const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ&_=${timestamp}`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}&_=${timestamp}`;
+    const rssUrl = 'https://news.google.com/rss/search?q=ETF+주식+증시&hl=ko&gl=KR&ceid=KR:ko';
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
     
-    const naverRes = await fetch(proxyUrl);
-    if (naverRes.ok) {
-      const naverData = await naverRes.json();
-      if (naverData && naverData.contents) {
-        try {
-          const naverContents = JSON.parse(naverData.contents);
-          if (naverContents?.result?.areas) {
-            const datas = naverContents.result.areas[0].datas;
-            datas.forEach(d => {
-              const market = GLOBAL_MARKETS.find(m => m.symbol === d.cd || m.name === d.cd);
-              if (market) {
-                market.val = parseFloat(d.nv.replace(/,/g, '')) || market.val;
-                market.change = parseFloat(d.cr) || market.change;
-              }
-            });
-          }
-        } catch (e) { console.warn('Naver parse error:', e); }
+    const response = await fetch(proxyUrl);
+    const data = await response.json();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+    const items = xmlDoc.querySelectorAll("item");
+    
+    const newsList = [];
+    items.forEach((item, index) => {
+      if (index < 10) { // 최근 10개만 사용
+        newsList.push({
+          cat: index % 2 === 0 ? '증시' : '경제',
+          title: item.querySelector("title").textContent.split(' - ')[0], // 언론사 명 제외
+          url: item.querySelector("link").textContent
+        });
       }
-    }
+    });
 
-    const otherMarkets = GLOBAL_MARKETS.filter(m => !['KOSPI', 'KOSDAQ'].includes(m.name));
-    const otherSymbols = otherMarkets.map(m => m.symbol).join(',');
-    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${otherSymbols}&_=${timestamp}`;
-    const yahooProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}&_=${timestamp}`;
-    
-    const yahooRes = await fetch(yahooProxyUrl);
-    if (yahooRes.ok) {
-      const yahooData = await yahooRes.json();
-      if (yahooData?.contents) {
-        try {
-          const yahooContents = JSON.parse(yahooData.contents);
-          if (yahooContents?.quoteResponse?.result) {
-            const quotes = yahooContents.quoteResponse.result;
-            quotes.forEach(quote => {
-              const market = GLOBAL_MARKETS.find(m => m.symbol === quote.symbol);
-              if (market) {
-                market.val = quote.regularMarketPrice ?? market.val;
-                market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
-              }
-            });
-          }
-        } catch (e) { console.warn('Yahoo parse error:', e); }
-      }
+    if (newsList.length > 0) {
+      LIVE_NEWS = newsList;
+      initTrendingNews(); // 뉴스 티커 다시 렌더링
     }
-
-    const now = new Date();
-    indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-    localStorage.setItem('cached-indices', JSON.stringify(GLOBAL_MARKETS));
-    localStorage.setItem('cached-index-time', indexFetchTime);
-    
   } catch (error) {
-    console.warn('Live data fetch failed:', error);
-  } finally {
-    renderGlobalIndices();
-    if (ticker) ticker.style.opacity = '1';
+    console.error('Real-time news fetch failed:', error);
   }
 }
 
-function renderGlobalIndices() {
-  const ticker = document.getElementById('index-ticker');
-  if (!ticker) return;
-  
-  const isKo = state.lang === 'ko';
-  const sourceText = isKo ? '실시간 지수 (클릭 시 갱신)' : 'Live Indices (Click to refresh)';
-  const updateText = indexFetchTime ? `[${indexFetchTime}]` : '';
-
-  // 1. 소스 태그 생성
-  const sourceTag = `<div class="ticker-source-tag">${sourceText} ${updateText}</div>`;
-  
-  // 2. 지수 아이템 생성 (무한 루프를 위해 2번 반복)
-  const itemsHtml = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS].map(idx => {
-    const isPos = idx.change >= 0;
-    const valText = idx.val === 0 ? '...' : idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const changeText = idx.val === 0 ? '' : `
-      <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
-        ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
-      </span>
-    `;
-    
-    return `
-      <div class="index-item">
-        <span class="index-name">${idx.name}</span>
-        <span class="index-val">${valText}</span>
-        ${changeText}
-      </div>
-    `;
-  }).join('');
-
-  ticker.innerHTML = sourceTag + itemsHtml;
+function updateMagazineDates() {
+  const now = new Date();
+  const dateElements = document.querySelectorAll('.magazine-footer .date');
+  dateElements.forEach((el, index) => {
+    const d = new Date(now);
+    d.setDate(now.getDate() - index); // 최신글부터 오늘, 어제, 그저께 순으로
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    el.textContent = `${y}.${m}.${day}`;
+  });
 }
 
 function initTrendingNews() {
@@ -262,7 +178,7 @@ function initTrendingNews() {
 
   const renderNews = () => {
     newsContainer.innerHTML = '';
-    TRENDING_NEWS.forEach((news, i) => {
+    LIVE_NEWS.forEach((news, i) => {
       const item = document.createElement('div');
       item.className = `news-item ${i === 0 ? 'active' : ''}`;
       item.style.transform = `translateY(${i * 100}%)`;
@@ -278,11 +194,11 @@ function initTrendingNews() {
     items.forEach((item, i) => {
       item.classList.remove('active');
       let offset = (i - currentIdx);
-      if (offset < 0) offset += TRENDING_NEWS.length;
+      if (offset < 0) offset += LIVE_NEWS.length;
       item.style.transform = `translateY(${offset * 100}%)`;
       if (offset === 0) item.classList.add('active');
     });
-    currentIdx = (currentIdx + 1) % TRENDING_NEWS.length;
+    currentIdx = (currentIdx + 1) % LIVE_NEWS.length;
   };
 
   renderNews();
@@ -397,9 +313,6 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
-  const ticker = document.getElementById('index-ticker');
-  if (ticker) ticker.addEventListener('click', () => fetchGlobalIndices());
-
   document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active'); state.lang = btn.dataset.lang; updateDashboard();

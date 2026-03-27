@@ -102,41 +102,54 @@ const TRENDING_NEWS = [
   { cat: '분석', title: '방어적 성격의 배당 ETF로 자금 유입 지속', url: 'https://news.naver.com', source: '머니투데이', summary: '안정적인 인컴 수익을 찾는 투자자들이 늘고 있습니다.' }
 ];
 
+function getCurrentFormattedTime() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = (now.getMonth() + 1).toString().padStart(2, '0');
+  const d = now.getDate().toString().padStart(2, '0');
+  const hh = now.getHours().toString().padStart(2, '0');
+  const mm = now.getMinutes().toString().padStart(2, '0');
+  return `${y}-${m}-${d} ${hh}:${mm}`;
+}
+
 async function init() {
-  // 1. 즉시 렌더링 (캐시 데이터 활용)
+  // 현재 접속 시각을 기준으로 업데이트 스트링 초기화
+  lastUpdateStr = getCurrentFormattedTime();
+
+  // 1. 최우선 순위: 실시간 지수 데이터 로딩 (가장 먼저 시작)
+  fetchGlobalIndices(); 
+
+  // 2. 즉시 UI 렌더링 (캐시된 데이터로 우선 표시하여 로딩 체감 단축)
   renderGlobalIndices();
   initTrendingNews();
   setupEventListeners();
 
-  // 1.1 캐시된 ETF 데이터가 있다면 즉시 표시
+  // 2.1 캐시된 ETF 데이터 표시
   const cachedEtfData = localStorage.getItem('cached-etf-data');
   if (cachedEtfData) {
     try {
       const dataRes = JSON.parse(cachedEtfData);
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
-      lastUpdateStr = dataRes.lastUpdate;
+      // 캐시 데이터의 날짜가 아닌, '현재' 시점을 기준으로 표시하기 위해 덮어쓰지 않음
       updateDashboard();
     } catch (e) { console.warn('Cached ETF data parse failed'); }
   }
 
-  // 2. 비동기 데이터 로딩 (비차단 병렬 처리)
-  // ETF 데이터 로딩
+  // 3. ETF 상세 데이터 비동기 로딩 (백그라운드 처리)
   fetch('data.json?t=' + Date.now())
     .then(res => res.json())
     .then(dataRes => {
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
-      lastUpdateStr = dataRes.lastUpdate;
+      // 데이터 로드 성공 시 시점 갱신
+      lastUpdateStr = getCurrentFormattedTime();
       localStorage.setItem('cached-etf-data', JSON.stringify(dataRes));
       updateDashboard();
     })
     .catch(error => console.error('ETF data fetch failed:', error));
 
-  // 실시간 지수 로딩 (가장 마지막에 처리하여 메인 컨텐츠 방해 최소화)
-  setTimeout(() => fetchGlobalIndices(), 100);
-
-  // 3. 주기적 업데이트 설정 (5분)
+  // 4. 주기적 업데이트 설정 (5분)
   if (window.indexInterval) clearInterval(window.indexInterval);
   window.indexInterval = setInterval(fetchGlobalIndices, 300000);
 }
@@ -146,7 +159,6 @@ async function fetchGlobalIndices() {
   if (ticker) ticker.classList.add('loading-indices');
   
   try {
-    // 캐시 방지를 위한 타임스탬프 추가
     const timestamp = Date.now();
     const naverUrl = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI,KOSDAQ&_=${timestamp}`;
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}&_=${timestamp}`;
@@ -355,7 +367,6 @@ function renderTable(data) {
     return;
   }
   
-  // 가상 DOM 조각 사용하여 성능 최적화
   const rows = data.map(etf => {
     const isFav = state.watchlist.has(etf.name);
     return `
@@ -390,7 +401,6 @@ window.toggleWatchlist = (name) => {
 };
 
 function setupEventListeners() {
-  // 지수 바 클릭 시 새로고침 기능 추가
   const ticker = document.getElementById('index-ticker');
   if (ticker) ticker.addEventListener('click', () => fetchGlobalIndices());
 

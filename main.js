@@ -156,7 +156,7 @@ async function init() {
 
 async function fetchGlobalIndices() {
   const ticker = document.getElementById('index-ticker');
-  if (ticker) ticker.classList.add('loading-indices');
+  if (ticker) ticker.style.opacity = '0.5';
   
   try {
     const timestamp = Date.now();
@@ -164,33 +164,22 @@ async function fetchGlobalIndices() {
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverUrl)}&_=${timestamp}`;
     
     const naverRes = await fetch(proxyUrl);
-    const naverData = await naverRes.json();
-    
-    let updated = false;
-
-    if (naverData && naverData.contents) {
-      const naverContents = JSON.parse(naverData.contents);
-      if (naverContents?.result?.areas) {
-        const datas = naverContents.result.areas[0].datas;
-        const kospiData = datas.find(d => d.cd === 'KOSPI');
-        const kosdaqData = datas.find(d => d.cd === 'KOSDAQ');
-        
-        if (kospiData) {
-          const item = GLOBAL_MARKETS.find(m => m.name === 'KOSPI');
-          if (item) {
-            item.val = parseFloat(kospiData.nv.replace(/,/g, ''));
-            item.change = parseFloat(kospiData.cr);
-            updated = true;
+    if (naverRes.ok) {
+      const naverData = await naverRes.json();
+      if (naverData && naverData.contents) {
+        try {
+          const naverContents = JSON.parse(naverData.contents);
+          if (naverContents?.result?.areas) {
+            const datas = naverContents.result.areas[0].datas;
+            datas.forEach(d => {
+              const market = GLOBAL_MARKETS.find(m => m.symbol === d.cd || m.name === d.cd);
+              if (market) {
+                market.val = parseFloat(d.nv.replace(/,/g, '')) || market.val;
+                market.change = parseFloat(d.cr) || market.change;
+              }
+            });
           }
-        }
-        if (kosdaqData) {
-          const item = GLOBAL_MARKETS.find(m => m.name === 'KOSDAQ');
-          if (item) {
-            item.val = parseFloat(kosdaqData.nv.replace(/,/g, ''));
-            item.change = parseFloat(kosdaqData.cr);
-            updated = true;
-          }
-        }
+        } catch (e) { console.warn('Naver parse error:', e); }
       }
     }
 
@@ -200,34 +189,35 @@ async function fetchGlobalIndices() {
     const yahooProxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}&_=${timestamp}`;
     
     const yahooRes = await fetch(yahooProxyUrl);
-    const yahooData = await yahooRes.json();
-    if (yahooData?.contents) {
-      const yahooContents = JSON.parse(yahooData.contents);
-      if (yahooContents?.quoteResponse?.result) {
-        const quotes = yahooContents.quoteResponse.result;
-        GLOBAL_MARKETS.forEach(market => {
-          if (['KOSPI', 'KOSDAQ'].includes(market.name)) return;
-          const quote = quotes.find(q => q.symbol === market.symbol);
-          if (quote) {
-            market.val = quote.regularMarketPrice ?? market.val;
-            market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
-            updated = true;
+    if (yahooRes.ok) {
+      const yahooData = await yahooRes.json();
+      if (yahooData?.contents) {
+        try {
+          const yahooContents = JSON.parse(yahooData.contents);
+          if (yahooContents?.quoteResponse?.result) {
+            const quotes = yahooContents.quoteResponse.result;
+            quotes.forEach(quote => {
+              const market = GLOBAL_MARKETS.find(m => m.symbol === quote.symbol);
+              if (market) {
+                market.val = quote.regularMarketPrice ?? market.val;
+                market.change = quote.regularMarketChangePercent !== undefined ? parseFloat(quote.regularMarketChangePercent.toFixed(2)) : market.change;
+              }
+            });
           }
-        });
+        } catch (e) { console.warn('Yahoo parse error:', e); }
       }
     }
 
-    if (updated) {
-      const now = new Date();
-      indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-      localStorage.setItem('cached-indices', JSON.stringify(GLOBAL_MARKETS));
-      localStorage.setItem('cached-index-time', indexFetchTime);
-      renderGlobalIndices();
-    }
+    const now = new Date();
+    indexFetchTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    localStorage.setItem('cached-indices', JSON.stringify(GLOBAL_MARKETS));
+    localStorage.setItem('cached-index-time', indexFetchTime);
+    
   } catch (error) {
     console.warn('Live data fetch failed:', error);
   } finally {
-    if (ticker) ticker.classList.remove('loading-indices');
+    renderGlobalIndices();
+    if (ticker) ticker.style.opacity = '1';
   }
 }
 
@@ -235,27 +225,33 @@ function renderGlobalIndices() {
   const ticker = document.getElementById('index-ticker');
   if (!ticker) return;
   
-  const items = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS];
   const isKo = state.lang === 'ko';
   const sourceText = isKo ? '실시간 지수 (클릭 시 갱신)' : 'Live Indices (Click to refresh)';
   const updateText = indexFetchTime ? `[${indexFetchTime}]` : '';
 
-  ticker.innerHTML = `
-    <div class="ticker-source-tag">${sourceText} ${updateText}</div>
-    ${items.map(idx => {
-      if (idx.val === 0) return `<div class="index-item"><span class="index-name">${idx.name}</span><span class="index-val">...</span></div>`;
-      const isPos = idx.change >= 0;
-      return `
-        <div class="index-item">
-          <span class="index-name">${idx.name}</span>
-          <span class="index-val">${idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-          <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
-            ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
-          </span>
-        </div>
-      `;
-    }).join('')}
-  `;
+  // 1. 소스 태그 생성
+  const sourceTag = `<div class="ticker-source-tag">${sourceText} ${updateText}</div>`;
+  
+  // 2. 지수 아이템 생성 (무한 루프를 위해 2번 반복)
+  const itemsHtml = [...GLOBAL_MARKETS, ...GLOBAL_MARKETS].map(idx => {
+    const isPos = idx.change >= 0;
+    const valText = idx.val === 0 ? '...' : idx.val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const changeText = idx.val === 0 ? '' : `
+      <span class="index-change" style="color: ${isPos ? 'var(--positive)' : 'var(--negative)'}">
+        ${isPos ? '▲' : '▼'} ${Math.abs(idx.change).toFixed(2)}%
+      </span>
+    `;
+    
+    return `
+      <div class="index-item">
+        <span class="index-name">${idx.name}</span>
+        <span class="index-val">${valText}</span>
+        ${changeText}
+      </div>
+    `;
+  }).join('');
+
+  ticker.innerHTML = sourceTag + itemsHtml;
 }
 
 function initTrendingNews() {

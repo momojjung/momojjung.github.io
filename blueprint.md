@@ -1,61 +1,25 @@
-# ETF Dashboard Project Blueprint (Naver Style Redesign)
+# Project Blueprint: ETF Insight
 
-## Project Overview
-A comprehensive ETF dashboard redesigned to match the intuitive and data-rich format of Naver Finance's ETF section. It provides real-time-like analysis for domestic and US ETFs with specific thematic categorization and market-cap-based sorting.
+## Overview
+ETF Insight is a modern, framework-less web application designed to provide real-time analysis and ranking of domestic and US ETFs based on official disclosure data. It features a responsive dashboard, trending news ticker, and educational content.
 
-## Features
-- **Market Selection:** Toggle between Domestic (KR) and US ETFs.
-  - *Note:* The 'KOSDAQ' category is automatically hidden when the US market is selected.
-- **Thematic Categorization (Sub-tabs):**
-  1.  **전체 (All):** Comprehensive list of all ETFs.
-  2.  **배당 (Dividend):** High dividend yield and dividend growth ETFs.
-  3.  **코스닥 (KOSDAQ):** ETFs tracking KOSDAQ indices (Domestic KR only).
-  4.  **방산 (Defense):** Aerospace and defense industry ETFs.
-  5.  **S&P500:** ETFs tracking the S&P 500 index.
-  6.  **나스닥100 (NASDAQ 100):** ETFs tracking the NASDAQ 100 index.
-  7.  **금 (Gold):** Gold spot and futures related ETFs.
-  8.  **월배당 (Monthly Dividend):** ETFs providing monthly distributions.
-  9.  **원유 (Crude Oil):** WTI and Brent crude oil related ETFs.
-  10. **2차전지 (Secondary Battery):** Battery and EV value chain ETFs.
-  11. **로봇 (Robot):** Robotics and AI automation ETFs.
-- **Trending News:** Real-time news ticker with article titles. Clicking a news item navigates directly to the news main/source page for the latest updates.
-- **News Detail Modal:** (Legacy) Previously used to show a summary; now clicking news items provides direct access to the source.
-- **Market Cap Sorting:** Default sorting by AUM (Assets Under Management) to highlight major players.
-- **Performance Metrics:** Real-time-like price changes and multi-timeframe performance.
-- **Naver-style UI:** Clean, data-centric design with clear typography and professional color palette.
+## Design & Features
+- **Modern UI:** Built with CSS Container Queries, Cascade Layers, and CSS Variables for a premium, tactile feel.
+- **Web Components:** Encapsulated UI elements for better maintainability.
+- **Real-time Data:** Fetches ETF data from `data.json` and news from Google News RSS via a proxy.
+- **Multilingual Support:** Supports Korean and English.
+- **Interactive Dashboard:** Filter by market and category, search by name, and sort by various metrics.
+- **News Ticker:** Rotating display of major news items with links to Naver News.
 
-## Technical Stack
-- **HTML5:** Semantic structure and Web Components for reusable UI.
-- **CSS3:** Modern features (Container Queries, `:has()`, Flexbox/Grid, OKLCH).
-- **JavaScript:** ES Modules for clean logic separation.
+## Current Plan: Update News Links & Deploy
+1. **Update News Path:**
+    - Changed the "Real-time Major News" label link from Naver Finance News (`finance.naver.com/news/`) to Naver News Home (`news.naver.com/`) in `index.html`.
+    - Updated sample news URLs in `main.js` to point to Naver News Home.
+2. **Deployment:**
+    - Prepare and commit changes.
+    - Deploy the project to `https://github.com/momojjung/momojjung.github.io` by pushing to the `deploy` remote.
 
-## Implementation Plan
-1.  **Data Refinement:** Update `data.json` with a wider variety of ETFs covering all 11 categories for both KR and US markets.
-2.  **UI Redesign:** 
-    *   Update `index.html` for the new tab structure.
-    *   Refine `style.css` for a "Naver-like" clean aesthetic.
-3.  **Logic Update:**
-    *   Modify `main.js` to handle the new category filtering.
-    *   Set default sort to Market Cap (AUM).
-    *   Implement keyword-based and attribute-based filtering for categories.
-4.  **Validation:** Ensure all 11 categories work correctly for both markets and data is sorted properly.
-
-## Current Steps
-- [x] Initial Research
-- [x] Redesign Plan (Blueprint Update)
-- [x] Update `data.json` with comprehensive data (10 items per category)
-- [x] Implement new UI structure in `index.html`
-- [x] Update `main.js` with new category logic and sorting
-- [x] Refine CSS for Naver-style aesthetics
-- [x] Implement News Detail Modal feature
-- [x] Expanded ETF items to 10 for each category
-- [x] Deployment to Firebase Hosting
-- [x] Real-time Global Stock Index Data Integration
-    - [x] Update `main.js` to fetch real-time indices from a public API
-    - [x] Handle API failures with fallback simulation
-    - [x] Deploy updated site to Firebase Hosting
-- [x] AdSense & Crawler Optimization
-    - [x] Fixed syntax error (typo) in `index.html`
-    - [x] Added `robots.txt` with explicit permission for Google AdsBots
-    - [x] Optimized `firebase.json` with specific headers for `ads.txt` (MIME type and no-cache)
-    - [x] Cleaned up `ads.txt` file format
+## Steps Taken
+- Modified `index.html` to update the news label link.
+- Modified `main.js` to update sample news links.
+- Updated `blueprint.md` with the latest changes.

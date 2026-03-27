@@ -81,10 +81,10 @@ const TRANSLATIONS = {
 const NAVER_CATEGORIES = ['전체', '배당', '코스닥', '방산', 'S&P500', '나스닥100', '금', '월배당', '원유', '2차전지', '로봇'];
 
 let LIVE_NEWS = [
-  { cat: '증시', title: '금리 동결 전망에 기술주 중심 반등세 지속', url: 'https://finance.naver.com' },
-  { cat: '경제', title: '환율 변동성 확대... 수출입 기업 대응 부심', url: 'https://finance.naver.com' },
-  { cat: '산업', title: 'AI 반도체 수요 폭증, 관련 기업 실적 개선 기대', url: 'https://finance.naver.com' },
-  { cat: '속보', title: '주요 지수 최고치 경신 후 혼조세 마감', url: 'https://finance.naver.com' }
+  { cat: '증시', title: '금리 동결 전망에 기술주 중심 반등세 지속', url: 'https://news.naver.com/' },
+  { cat: '경제', title: '환율 변동성 확대... 수출입 기업 대응 부심', url: 'https://news.naver.com/' },
+  { cat: '산업', title: 'AI 반도체 수요 폭증, 관련 기업 실적 개선 기대', url: 'https://news.naver.com/' },
+  { cat: '속보', title: '주요 지수 최고치 경신 후 혼조세 마감', url: 'https://news.naver.com/' }
 ];
 
 function getCurrentFormattedTime() {

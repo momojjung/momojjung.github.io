@@ -96,6 +96,14 @@ body {
   gap: 20px;
 }
 
+.news-label-link {
+  text-decoration: none;
+}
+
+.news-label-link:hover .news-label {
+  background: var(--primary-dark, #0056b3);
+}
+
 .news-label {
   background: var(--primary);
   color: #ffffff;
@@ -104,6 +112,7 @@ body {
   font-size: 0.85rem;
   font-weight: 800;
   white-space: nowrap;
+  transition: background 0.2s;
 }
 
 .news-content {

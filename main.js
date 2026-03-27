@@ -103,26 +103,43 @@ const TRENDING_NEWS = [
 ];
 
 async function init() {
-  // 1. 캐시된 데이터로 즉시 렌더링 (체감 속도 최적화)
+  // 1. 즉시 렌더링 (체감 속도 최적화: 캐시된 지수와 뉴스 우선 로드)
   renderGlobalIndices();
   initTrendingNews();
   setupEventListeners();
 
-  try {
-    // 2. 병렬 로딩: ETF 데이터와 실시간 지수를 동시에 가져옴
-    const [dataRes, _] = await Promise.all([
-      fetch('data.json').then(res => res.json()),
-      fetchGlobalIndices()
-    ]);
-
-    etfData = dataRes.etfData;
-    benchmarks = dataRes.benchmarks;
-    lastUpdateStr = dataRes.lastUpdate;
-    
-    updateDashboard();
-  } catch (error) {
-    console.error('Initialization failed:', error);
+  // 1.1 캐시된 ETF 데이터가 있다면 우선 표시
+  const cachedEtfData = localStorage.getItem('cached-etf-data');
+  if (cachedEtfData) {
+    try {
+      const dataRes = JSON.parse(cachedEtfData);
+      etfData = dataRes.etfData;
+      benchmarks = dataRes.benchmarks;
+      lastUpdateStr = dataRes.lastUpdate;
+      updateDashboard();
+    } catch (e) {
+      console.warn('Cached ETF data parse failed');
+    }
   }
+
+  // 2. 비동기 데이터 로딩 (병렬화 및 비차단형 전환)
+  // 2.1 최신 ETF 데이터 로딩 (중요)
+  fetch('data.json')
+    .then(res => res.json())
+    .then(dataRes => {
+      etfData = dataRes.etfData;
+      benchmarks = dataRes.benchmarks;
+      lastUpdateStr = dataRes.lastUpdate;
+      // 최신 데이터를 다시 캐시
+      localStorage.setItem('cached-etf-data', JSON.stringify(dataRes));
+      updateDashboard();
+    })
+    .catch(error => {
+      console.error('ETF data fetch failed:', error);
+    });
+
+  // 2.2 실시간 지수 데이터 로딩 (별도 비동기 처리, 메인 화면 렌더링을 방해하지 않음)
+  fetchGlobalIndices().catch(err => console.warn('Global indices fetch failed:', err));
 
   // 3. 주기적 업데이트 설정
   if (window.indexInterval) clearInterval(window.indexInterval);

@@ -11,13 +11,15 @@ ETF Insight is a modern, framework-less web application designed to provide real
 - **Interactive Dashboard:** Filter by market and category, search by name, and sort by various metrics.
 - **News Ticker:** Rotating display of major news items with links to Naver News.
 
-## Current Plan: Update News Links & Deploy
-1. **Update News Path:**
-    - Changed the "Real-time Major News" label link from Naver Finance News (`finance.naver.com/news/`) to Naver News Home (`news.naver.com/`) in `index.html`.
-    - Updated sample news URLs in `main.js` to point to Naver News Home.
-2. **Deployment:**
-    - Prepare and commit changes.
-    - Deploy the project to `https://github.com/momojjung/momojjung.github.io` by pushing to the `deploy` remote.
+## Current Plan: Fix ads.txt Recognition
+1. **Standardize ads.txt:**
+    - Ensured `ads.txt` follows the strictly standard format for Google AdSense (`google.com, pub-4673553755265940, DIRECT, f08c47fec0942fa0`).
+2. **Configure Firebase Hosting:**
+    - Updated `firebase.json` to ensure `ads.txt` is served as a static file and not rewritten to `index.html`.
+    - Fixed headers to use leading slashes for `ads.txt` and `robots.txt`.
+    - Adjusted `Cache-Control` for `ads.txt` to `public, max-age=3600` to improve crawler recognition.
+3. **Verification:**
+    - Verified `index.html` contains the correct AdSense meta tags and client ID.
 
 ## Steps Taken
 - Modified `index.html` to update the news label link.

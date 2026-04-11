@@ -1,27 +1,26 @@
-# Project Blueprint: ETF Insight
+# Project Blueprint: ETF Insight (Media Edition)
 
 ## Overview
-ETF Insight is a modern, framework-less web application designed to provide real-time analysis and ranking of domestic and US ETFs based on official disclosure data. It features a responsive dashboard, trending news ticker, and educational content.
+ETF Insight is a professional financial analysis platform designed as a **high-authority media outlet**. It shifts from a tool-centric dashboard to a **content-rich investment magazine** to maximize E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) for Google AdSense approval.
 
 ## Design & Features
-- **Modern UI:** Built with CSS Container Queries, Cascade Layers, and CSS Variables for a premium, tactile feel.
-- **Web Components:** Encapsulated UI elements for better maintainability.
-- **Real-time Data:** Fetches ETF data from `data.json` and news from Google News RSS via a proxy.
-- **Multilingual Support:** Supports Korean and English.
-- **Interactive Dashboard:** Filter by market and category, search by name, and sort by various metrics.
-- **News Ticker:** Rotating display of major news items with links to Naver News.
+- **Magazine-First Layout:** Prioritizes long-form analysis articles and expert insights over raw data tables.
+- **Professional Data Visualization:** Integrated `Chart.js` to provide visual market context, simulating professional analyst reports.
+- **Premium Financial Aesthetic:** Uses a "Wall Street Journal" inspired design with serif headings (`Noto Serif KR`), deep navy colors, and generous white space.
+- **Content Hubs:**
+    - **Market Reports:** Deep dives into global economic trends (e.g., AI Infrastructure, Energy Transition).
+    - **Editor's Choice:** Curated investment themes with technical justifications.
+    - **Master Class:** Numbered educational guides for long-term wealth building.
+- **Data Room:** A clean, filtered dashboard for real-time ETF performance tracking, now positioned as a supporting resource.
 
-## Current Plan: Fix ads.txt Recognition
-1. **Standardize ads.txt:**
-    - Ensured `ads.txt` follows the strictly standard format for Google AdSense (`google.com, pub-4673553755265940, DIRECT, f08c47fec0942fa0`).
-2. **Configure Firebase Hosting:**
-    - Updated `firebase.json` to ensure `ads.txt` is served as a static file and not rewritten to `index.html`.
-    - Fixed headers to use leading slashes for `ads.txt` and `robots.txt`.
-    - Adjusted `Cache-Control` for `ads.txt` to `public, max-age=3600` to improve crawler recognition.
-3. **Verification:**
-    - Verified `index.html` contains the correct AdSense meta tags and client ID.
+## Strategic Shift: AdSense Content Value
+1. **Text Density:** Increased the ratio of original text to data, ensuring Google crawlers find substantive educational content.
+2. **User Intent:** Focused on "Why" and "How" (Investment Strategy) rather than just "What" (Data).
+3. **Visualization:** Added interactive charts to reduce the 'thin content' penalty associated with simple table-based sites.
+4. **Authority:** Enhanced footer and meta-data to establish a brand identity as a financial insight provider.
 
 ## Steps Taken
-- Modified `index.html` to update the news label link.
-- Modified `main.js` to update sample news links.
-- Updated `blueprint.md` with the latest changes.
+- Completely overhauled `index.html` with a magazine hero and article-centric grid.
+- Redesigned `style.css` for a premium, authoritative media look.
+- Updated `main.js` to handle `Chart.js` and the new media-style dashboard.
+- Deployed to the primary domain repository: `https://github.com/momojjung/momojjung.github.io`.

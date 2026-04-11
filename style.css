@@ -375,52 +375,66 @@ td {
   font-size: 0.95rem;
 }
 
-/* Footer */
-.magazine-footer {
-  background: #111;
+/* Market Ticker */
+.market-ticker {
+  background: var(--primary);
   color: #fff;
-  padding: 80px 0 40px;
-}
-
-.footer-grid-magazine {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 80px;
-  margin-bottom: 60px;
-}
-
-.footer-about h3 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-}
-
-.footer-about p {
-  color: #777;
-}
-
-.footer-links h4, .footer-contact h4 {
-  margin-bottom: 24px;
-}
-
-.footer-links ul {
-  list-style: none;
-}
-
-.footer-links li {
-  margin-bottom: 12px;
-}
-
-.footer-links a {
-  color: #777;
-  text-decoration: none;
-}
-
-.footer-bottom {
-  border-top: 1px solid #222;
-  padding-top: 40px;
-  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  white-space: nowrap;
   font-size: 0.8rem;
-  color: #555;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ticker-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker 30s linear infinite;
+}
+
+.ticker-item {
+  margin-right: 50px;
+}
+
+.ticker-item .up { color: #ff7675; }
+.ticker-item .down { color: #74b9ff; }
+
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* Knowledge Base / Glossary */
+.knowledge-base {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.glossary-grid-magazine {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.glossary-item dt {
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.glossary-item dd {
+  color: var(--text-sub);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Footer Disclaimer */
+.footer-disclaimer h4 {
+  margin-bottom: 24px;
+  color: var(--accent);
 }
 
 /* Responsive */

@@ -30,14 +30,9 @@
   <link href='/style.css' rel='stylesheet'>
 </head>
 <body>
-  <!-- [New] Global Indices Ticker Bar -->
   <div class="market-ticker">
-    <div class="ticker-content">
-      <span class="ticker-item">S&P 500 <span class="up">5,421.22 (+0.45%)</span></span>
-      <span class="ticker-item">NASDAQ <span class="up">18,321.50 (+0.82%)</span></span>
-      <span class="ticker-item">KOSPI <span class="down">2,752.10 (-0.12%)</span></span>
-      <span class="ticker-item">USD/KRW <span class="up">1,345.50 (+0.25%)</span></span>
-      <span class="ticker-item">Gold <span class="up">$2,350.10 (+1.10%)</span></span>
+    <div class="ticker-content" id="ticker-content">
+      <!-- Injected by JS -->
     </div>
   </div>
 
@@ -45,40 +40,39 @@
     <div class="container nav-content">
       <div class="nav-brand">ETF INSIGHT</div>
       <ul class="nav-menu">
-        <li><a href="#market-report">시장 리포트</a></li>
-        <li><a href="#dashboard">데이터 룸</a></li>
-        <li><a href="#investment-guide">투자 가이드</a></li>
-        <li><a href="#knowledge-base">용어 사전</a></li>
+        <li><a href="#market-report" id="nav-report">시장 리포트</a></li>
+        <li><a href="#dashboard" id="nav-data">데이터 룸</a></li>
+        <li><a href="#investment-guide" id="nav-guide">투자 가이드</a></li>
+        <li><a href="#knowledge-base" id="nav-kb">용어 사전</a></li>
       </ul>
       <div class="nav-right">
         <button class="search-trigger">🔍</button>
         <div class="lang-switcher">
-          <button class="active">KR</button>
+          <button class="lang-btn active" data-lang="ko">KR</button>
           <span>/</span>
-          <button>EN</button>
+          <button class="lang-btn" data-lang="en">EN</button>
         </div>
       </div>
     </div>
   </nav>
 
   <main>
-    <!-- Hero Section: Featured Article -->
     <section class="hero-magazine" id="market-report">
       <div class="container">
         <div class="hero-grid">
           <div class="hero-main-article">
-            <span class="category-tag">Cover Story</span>
-            <h1>2026년 글로벌 ETF 시장의 대전환: AI를 넘어 '인프라'로</h1>
-            <p class="lead-text">인공지능(AI) 반도체 열풍이 지나간 자리에 새로운 인프라 투자 시대가 열리고 있습니다. 전 세계적인 에너지 전환과 스마트 시티 건설 수요가 폭증함에 따라 관련 ETF들의 수익률이 심상치 않습니다. 본 리포트에서는 2026년 하반기를 주도할 핵심 섹터를 심층 분석합니다.</p>
+            <span class="category-tag" id="hero-tag">Cover Story</span>
+            <h1 id="hero-title">2026년 글로벌 ETF 시장의 대전환: AI를 넘어 '인프라'로</h1>
+            <p class="lead-text" id="hero-desc">인공지능(AI) 반도체 열풍이 지나간 자리에 새로운 인프라 투자 시대가 열리고 있습니다. 전 세계적인 에너지 전환과 스마트 시티 건설 수요가 폭증함에 따라 관련 ETF들의 수익률이 심상치 않습니다.</p>
             <div class="article-meta">
               <span class="author">By Senior Analyst Jihoon Kim</span>
               <span class="date">April 11, 2026</span>
             </div>
-            <a href="#dashboard" class="btn-read-more">실시간 데이터 확인하기 →</a>
+            <a href="#dashboard" class="btn-read-more" id="hero-btn">실시간 데이터 확인하기 →</a>
           </div>
           <div class="hero-side-content">
             <div class="chart-container-mini">
-              <h3>시장 섹터별 수익률 추이</h3>
+              <h3 id="chart-title">시장 섹터별 수익률 추이</h3>
               <canvas id="heroChart"></canvas>
             </div>
           </div>
@@ -86,68 +80,61 @@
       </div>
     </section>
 
-    <!-- Essential Insights Section -->
     <section class="essential-insights">
       <div class="container">
         <div class="section-header">
-          <h2 class="serif">Editor's Choice: 2026 Q2 Market Strategy</h2>
-          <p>금융 데이터 분석가가 제안하는 섹터별 심층 분석 리포트</p>
+          <h2 class="serif" id="edit-choice-title">Editor's Choice: 2026 Q2 Market Strategy</h2>
+          <p id="edit-choice-desc">금융 데이터 분석가가 제안하는 섹터별 심층 분석 리포트</p>
         </div>
-        <div class="insight-grid-v2">
+        <div class="insight-grid-v2" id="report-grid">
+          <!-- Articles are static but we will translate headers via JS -->
           <article class="report-card">
             <div class="report-header">
-              <span class="report-tag">배당 전략</span>
-              <h3>월배당 ETF 열풍의 이면: SCHD vs JEPI 실질 수익률 비교</h3>
+              <span class="report-tag tag-div">배당 전략</span>
+              <h3 class="article-t1">월배당 ETF 열풍의 이면: SCHD vs JEPI 실질 수익률 비교</h3>
             </div>
             <div class="report-body">
-              <p>최근 국내외 투자자들 사이에서 '제2의 월급'으로 불리는 월배당 ETF에 대한 관심이 뜨겁습니다. SCHD는 10년 연속 배당금을 증액한 기업에 투자하는 '배당 성장' 전략을 취하며 하락장에서의 방어력이 뛰어납니다. 반면, JEPI는 커버드콜 전략을 통해 7~10% 수준의 높은 분배율을 유지하지만 주가 상승기에는 상승분이 제한될 수 있습니다.</p>
-              <div class="report-source">
-                <strong>Data Source:</strong> Charles Schwab Asset Management, J.P. Morgan Asset Management (2026.03 Disclosure)
-              </div>
+              <p class="article-p1">SCHD는 10년 연속 배당금을 증액한 기업에 투자하는 '배당 성장' 전략을 취하며 하락장에서의 방어력이 뛰어납니다. 반면, JEPI는 커버드콜 전략을 통해 높은 분배율을 유지합니다.</p>
+              <div class="report-source"><strong>Data Source:</strong> Charles Schwab, J.P. Morgan</div>
             </div>
           </article>
 
           <article class="report-card">
             <div class="report-header">
-              <span class="report-tag">기술 섹터</span>
-              <h3>AI 반도체를 넘어 '전력망'과 '에너지' 인프라로</h3>
+              <span class="report-tag tag-tech">기술 섹터</span>
+              <h3 class="article-t2">AI 반도체를 넘어 '전력망'과 '에너지' 인프라로</h3>
             </div>
             <div class="report-body">
-              <p>엔비디아로 대표되는 AI 반도체 랠리가 1단계를 마무리하고, 이제 시장의 시선은 AI 연산을 뒷받침할 '물리적 인프라'로 향하고 있습니다. 데이터 센터 가동에 필요한 막대한 전력 소모가 전 세계적인 전력 부족 사태를 야기함에 따라 구리 공급망 및 송전망 구축 관련 ETF들이 신고가를 경신하고 있습니다.</p>
-              <div class="report-source">
-                <strong>Data Source:</strong> Investing.com Global Index, KRX Sector Performance (2026 Q1 Report)
-              </div>
+              <p class="article-p2">데이터 센터 가동에 필요한 막대한 전력 소모가 전 세계적인 전력 부족 사태를 야기함에 따라 구리 공급망 및 송전망 구축 관련 ETF들이 신고가를 경신하고 있습니다.</p>
+              <div class="report-source"><strong>Data Source:</strong> Investing.com, KRX Data</div>
             </div>
           </article>
 
           <article class="report-card">
             <div class="report-header">
-              <span class="report-tag">절세 전략</span>
-              <h3>금융투자소득세 시대의 생존법: ISA 계좌 최적화</h3>
+              <span class="report-tag tag-tax">절세 전략</span>
+              <h3 class="article-t3">금융투자소득세 시대의 생존법: ISA 계좌 최적화</h3>
             </div>
             <div class="report-body">
-              <p>2026년 개편된 금융투자소득세 환경에서 투자 수익을 극대화하는 핵심은 '비과세'와 '분리과세' 활용에 있습니다. 중개형 ISA 계좌 내에서 S&P500 등 해외 지수 추종 ETF에 투자할 경우 발생하는 절세 효과와 복리 수익률 차이를 분석했습니다. 연금저축펀드와의 조합을 통해 세후 수익률을 극대화할 수 있습니다.</p>
-              <div class="report-source">
-                <strong>Data Source:</strong> 금융위원회(FSC) 보도자료, 예탁결제원(SEIBro) 절세 가이드라인
-              </div>
+              <p class="article-p3">2026년 개편된 금융투자소득세 환경에서 투자 수익을 극대화하는 핵심은 '비과세'와 '분리과세' 활용에 있습니다. ISA 계좌의 절세 효과를 분석했습니다.</p>
+              <div class="report-source"><strong>Data Source:</strong> FSC Korea, SEIBro</div>
             </div>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- Data Room (Dashboard) -->
     <section class="data-room" id="dashboard">
       <div class="container">
         <div class="section-header-centered">
-          <h2 class="serif">ETF Data Room</h2>
-          <p>공식 공시 데이터를 바탕으로 한 실시간 성과 지표</p>
+          <h2 class="serif" id="data-room-title">ETF Data Room</h2>
+          <p id="data-room-desc">공식 공시 데이터를 바탕으로 한 실시간 성과 지표</p>
         </div>
         
         <div class="dashboard-controls-magazine">
           <div class="market-switcher">
-            <button class="active" data-market="domestic">Domestic (KR)</button>
-            <button data-market="us">Global (US)</button>
+            <button class="active" data-market="domestic" id="btn-dom">Domestic (KR)</button>
+            <button data-market="us" id="btn-us">Global (US)</button>
           </div>
           <div class="search-bar-magazine">
             <input type="text" id="etf-search" placeholder="종목명 또는 티커로 검색...">
@@ -156,80 +143,47 @@
 
         <div class="dashboard-card-magazine">
           <div class="table-container">
-            <table id="etf-table">
+            <table>
               <thead>
                 <tr>
-                  <th>Rank</th>
-                  <th>ETF Name</th>
-                  <th>Market Cap</th>
-                  <th>Growth (YTD)</th>
-                  <th>1 Year</th>
-                  <th>Dividend</th>
-                  <th>Risk</th>
+                  <th id="th-rank">Rank</th>
+                  <th id="th-name">ETF Name</th>
+                  <th id="th-aum">Market Cap</th>
+                  <th id="th-growth">Growth (YTD)</th>
+                  <th id="th-1y">1 Year</th>
+                  <th id="th-div">Dividend</th>
+                  <th id="th-risk">Risk</th>
                 </tr>
               </thead>
-              <tbody id="etf-list">
-                <!-- Data injected by JS -->
-              </tbody>
+              <tbody id="etf-list"></tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Knowledge Base -->
     <section class="knowledge-base" id="knowledge-base" style="padding: 100px 0; background: var(--bg-sub);">
       <div class="container">
         <div class="section-header">
-          <h2 class="serif">ETF Knowledge Base</h2>
-          <p>투자 전 반드시 알아야 할 핵심 용어 해설</p>
+          <h2 class="serif" id="kb-title">ETF Knowledge Base</h2>
+          <p id="kb-desc">투자 전 반드시 알아야 할 핵심 용어 해설</p>
         </div>
-        <div class="glossary-grid-magazine" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 40px;">
+        <div class="glossary-grid-magazine">
           <div class="glossary-item">
-            <dt style="font-weight: 800; color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">TER (총보수비용)</dt>
-            <dd style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.6;">운용보수뿐만 아니라 수탁보수, 사무수탁보수 등 ETF 운용 과정에서 발생하는 모든 비용을 합산한 비율입니다.</dd>
-          </div>
-          <div class="glossary-item">
-            <dt style="font-weight: 800; color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">NAV (순자산가치)</dt>
-            <dd style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.6;">ETF가 보유한 자산의 주당 실제 가치입니다. 시장 가격과의 차이를 괴리율이라고 부릅니다.</dd>
+            <dt id="dt-ter">TER (총보수비용)</dt>
+            <dd id="dd-ter">운용보수뿐만 아니라 모든 비용을 합산한 비율입니다.</dd>
           </div>
           <div class="glossary-item">
-            <dt style="font-weight: 800; color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">Tracking Error (추적오차)</dt>
-            <dd style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.6;">ETF가 추종하는 기초지수의 수익률과 실제 ETF 수익률 사이의 차이로, 운용사의 역량을 나타냅니다.</dd>
+            <dt id="dt-nav">NAV (순자산가치)</dt>
+            <dd id="dd-nav">ETF가 보유한 자산의 주당 실제 가치입니다.</dd>
           </div>
           <div class="glossary-item">
-            <dt style="font-weight: 800; color: var(--accent); margin-bottom: 10px; font-size: 1.1rem;">iNAV (실시간 가치)</dt>
-            <dd style="color: var(--text-sub); font-size: 0.95rem; line-height: 1.6;">장중 실시간으로 계산되는 ETF의 주당 가치로, 현재 거래 가격이 적정한지 판단하는 기준이 됩니다.</dd>
+            <dt id="dt-te">Tracking Error (추적오차)</dt>
+            <dd id="dd-te">기초지수 수익률과 실제 ETF 수익률 사이의 차이입니다.</dd>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Deep Dive Guide -->
-    <section class="deep-dive" id="investment-guide">
-      <div class="container">
-        <div class="deep-dive-box">
-          <div class="deep-dive-content">
-            <h2 class="serif">초보자를 위한 ETF 투자 마스터 클래스</h2>
-            <div class="guide-steps">
-              <div class="step">
-                <span class="step-num">01</span>
-                <div>
-                  <h4>비용(TER)을 가장 먼저 확인하세요</h4>
-                  <p>수익률이 같아도 운용 보수에 따라 10년 후 자산은 큰 차이가 납니다. 실질 보수가 낮은 상품을 선택하세요.</p>
-                </div>
-              </div>
-              <div class="step">
-                <span class="step-num">02</span>
-                <div>
-                  <h4>세금 혜택 계좌를 100% 활용하세요</h4>
-                  <p>ISA, 연금저축, IRP 계좌는 ETF 투자의 필수입니다. 과세 이연과 비과세 혜택을 극대화하세요.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="deep-dive-image">
-             <div class="abstract-shape"></div>
+          <div class="glossary-item">
+            <dt id="dt-inav">iNAV (실시간 가치)</dt>
+            <dd id="dd-inav">장중 실시간으로 계산되는 ETF의 주당 가치입니다.</dd>
           </div>
         </div>
       </div>
@@ -241,18 +195,18 @@
       <div class="footer-grid-magazine">
         <div class="footer-about">
           <h3>ETF INSIGHT</h3>
-          <p>기관급 데이터 분석을 통해 개인 투자자의 성공적인 자산 관리를 돕는 프리미엄 금융 미디어입니다.</p>
+          <p id="footer-about-text">기관급 데이터 분석을 통해 개인 투자자의 성공적인 자산 관리를 돕는 프리미엄 금융 미디어입니다.</p>
         </div>
         <div class="footer-links">
-          <h4>Policy</h4>
+          <h4 id="footer-policy-title">Policy</h4>
           <ul>
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms of Service</a></li>
           </ul>
         </div>
         <div class="footer-disclaimer">
-          <h4>Financial Disclaimer</h4>
-          <p style="font-size: 0.85rem; color: #777; line-height: 1.6;">본 사이트에서 제공하는 모든 정보는 교육 및 정보 제공만을 목적으로 하며, 특정 금융 상품의 매수 또는 매도를 권유하지 않습니다. 투자 결정은 본인의 판단하에 이루어져야 하며, 그 결과에 대한 모든 책임은 투자자 본인에게 있습니다. 과거의 성과가 미래의 수익을 보장하지 않습니다.</p>
+          <h4 id="footer-disclaimer-title">Financial Disclaimer</h4>
+          <p id="footer-disclaimer-text">본 사이트에서 제공하는 모든 정보는 교육 및 정보 제공만을 목적으로 하며, 투자 결과에 대한 모든 책임은 투자자 본인에게 있습니다.</p>
         </div>
       </div>
       <div class="footer-bottom">

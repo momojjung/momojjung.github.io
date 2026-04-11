@@ -16,11 +16,12 @@ let state = {
 const TRANSLATIONS = {
   ko: {
     'nav-dashboard': '분석 대시보드',
+    'nav-tools': '투자 도구',
     'nav-academy': 'ETF 아카데미',
+    'nav-glossary': '용어 사전',
     'nav-about': '사이트 소개',
-    'nav-contact': '제휴 문의',
     'header-title': '스마트한 ETF 투자의 시작',
-    'header-subtitle': '공식 공시 데이터 기반의 투명한 ETF 성과 분석 플랫폼',
+    'header-subtitle': '공식 공시 데이터 기반의 투명한 ETF 성과 분석 및 투자 시뮬레이션 플랫폼',
     'etf-search-placeholder': '종목명 또는 티커 검색...',
     'news-label': '실시간 주요 뉴스',
     'label-top-gainer': '최고 수익률 (1년)',
@@ -47,9 +48,10 @@ const TRANSLATIONS = {
   },
   en: {
     'nav-dashboard': 'Dashboard',
-    'nav-academy': 'ETF Academy',
-    'nav-about': 'About Us',
-    'nav-contact': 'Contact',
+    'nav-tools': 'Tools',
+    'nav-academy': 'Academy',
+    'nav-glossary': 'Glossary',
+    'nav-about': 'About',
     'header-title': 'Smart ETF Investing Starts Here',
     'header-subtitle': 'Transparent ETF Analysis Platform Based on Official Disclosures',
     'etf-search-placeholder': 'Search Name or Ticker...',
@@ -101,10 +103,11 @@ async function init() {
   lastUpdateStr = getCurrentFormattedTime();
   updateMagazineDates();
 
-  initTrendingNews(); // 우선 기본/샘플 뉴스로 노출
-  fetchRealTimeNews(); // 그 후 실제 뉴스 비동기 로딩
+  initTrendingNews();
+  fetchRealTimeNews();
   
   setupEventListeners();
+  setupToolEventListeners();
 
   const cachedEtfData = localStorage.getItem('cached-etf-data');
   if (cachedEtfData) {
@@ -113,6 +116,7 @@ async function init() {
       etfData = dataRes.etfData;
       benchmarks = dataRes.benchmarks;
       updateDashboard();
+      populateCompareSelects();
     } catch (e) { console.warn('Cached ETF data parse failed'); }
   }
 
@@ -124,14 +128,76 @@ async function init() {
       lastUpdateStr = getCurrentFormattedTime();
       localStorage.setItem('cached-etf-data', JSON.stringify(dataRes));
       updateDashboard();
+      populateCompareSelects();
     })
     .catch(error => console.error('ETF data fetch failed:', error));
+}
+
+// Investment Tools Logic
+function setupToolEventListeners() {
+  const quantityInput = document.getElementById('calc-quantity');
+  const dividendInput = document.getElementById('calc-dividend');
+  const resultValue = document.getElementById('calc-result');
+
+  const updateCalc = () => {
+    const q = parseFloat(quantityInput.value) || 0;
+    const d = parseFloat(dividendInput.value) || 0;
+    const res = q * d;
+    resultValue.textContent = res.toLocaleString();
+  };
+
+  quantityInput.addEventListener('input', updateCalc);
+  dividendInput.addEventListener('input', updateCalc);
+
+  document.getElementById('compare-1').addEventListener('change', updateComparison);
+  document.getElementById('compare-2').addEventListener('change', updateComparison);
+}
+
+function populateCompareSelects() {
+  const s1 = document.getElementById('compare-1');
+  const s2 = document.getElementById('compare-2');
+  if (!s1 || !s2 || !etfData.domestic) return;
+
+  const allEtfs = [...etfData.domestic, ...etfData.us];
+  const options = allEtfs.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+  
+  s1.innerHTML = `<option value="">선택 1</option>` + options;
+  s2.innerHTML = `<option value="">선택 2</option>` + options;
+}
+
+function updateComparison() {
+  const name1 = document.getElementById('compare-1').value;
+  const name2 = document.getElementById('compare-2').value;
+  const grid = document.getElementById('compare-result-grid');
+
+  if (!name1 || !name2) {
+    grid.innerHTML = '<div class="compare-placeholder">비교할 두 종목을 선택해 주세요.</div>';
+    return;
+  }
+
+  const allEtfs = [...etfData.domestic, ...etfData.us];
+  const e1 = allEtfs.find(e => e.name === name1);
+  const e2 = allEtfs.find(e => e.name === name2);
+
+  const fields = [
+    { label: '성장률 (YTD)', key: 'growth', suffix: '%' },
+    { label: '1년 수익률', key: '1y', suffix: '%' },
+    { label: '3개월 수익률', key: '3m', suffix: '%' },
+    { label: '배당금', key: 'dividend', suffix: '' }
+  ];
+
+  grid.innerHTML = fields.map(f => `
+    <div class="compare-row">
+      <div class="compare-val ${e1[f.key] > e2[f.key] ? 'val-positive' : ''}">${e1[f.key]}${f.suffix}</div>
+      <div class="compare-label">${f.label}</div>
+      <div class="compare-val ${e2[f.key] > e1[f.key] ? 'val-positive' : ''}">${e2[f.key]}${f.suffix}</div>
+    </div>
+  `).join('');
 }
 
 // 구글 뉴스 RSS Fetch 로직 강화
 async function fetchRealTimeNews() {
   try {
-    // 타임스탬프를 추가하여 프록시 캐시 방지
     const rssUrl = `https://news.google.com/rss/search?q=ETF+주식+증시&hl=ko&gl=KR&ceid=KR:ko&t=${Date.now()}`;
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
     
@@ -166,7 +232,6 @@ async function fetchRealTimeNews() {
     }
   } catch (error) {
     console.warn('Real-time news fetch failed, using fallback:', error);
-    // 실패 시 기본 샘플 뉴스 유지 (이미 렌더링됨)
   }
 }
 
@@ -189,7 +254,6 @@ function initTrendingNews() {
   const tCats = TRANSLATIONS[state.lang]['news-cats'];
   let currentIdx = 0;
 
-  // 뉴스 아이템 렌더링
   const renderNews = () => {
     newsContainer.innerHTML = '';
     LIVE_NEWS.forEach((news, i) => {
@@ -202,7 +266,6 @@ function initTrendingNews() {
     });
   };
 
-  // 회전 애니메이션
   const rotateNews = () => {
     const items = newsContainer.querySelectorAll('.news-item');
     if (items.length === 0) return;

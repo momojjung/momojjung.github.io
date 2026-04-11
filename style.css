@@ -168,12 +168,14 @@ body {
   background: var(--bg-sub);
   padding: 30px;
   border-radius: 12px;
+  height: 400px; /* 차트 높이 고정 */
+  display: flex;
+  flex-direction: column;
 }
 
-.chart-container-mini h3 {
-  font-size: 1rem;
-  margin-bottom: 20px;
-  text-align: center;
+.chart-container-mini canvas {
+  flex: 1; /* 남은 공간을 차트가 채우도록 설정 */
+  width: 100% !important;
 }
 
 /* Insights Grid */
